@@ -24,12 +24,12 @@ class FamilyCanvas extends CustomPainter {
       canvas.drawCircle(Offset(couple.x - panX, couple.y - panY), 1, paint);
 
       if (couple.member2 == null) {
-        // drawBoundary(couple.x, couple.y, canvas, paint);
+        drawBoundary(couple.x, couple.y, canvas, paint);
 
         drawCircle(
           couple.x,
           couple.y,
-          CIRCLE_RADIUS,
+          MEMBER_CIRCLE_RADIUS,
           paint,
           canvas,
         );
@@ -40,12 +40,16 @@ class FamilyCanvas extends CustomPainter {
           canvas,
         );
 
-        drawLoadChildrenButton(couple, paint, canvas);
+        drawLoadChildrenButton(
+          couple,
+          paint,
+          canvas,
+        );
 
         drawText(
           couple.member1,
-          couple.x - CIRCLE_RADIUS,
-          couple.y + CIRCLE_RADIUS / 2 + 25, //TODO: hardcodeed 20
+          couple.x - MEMBER_CIRCLE_RADIUS,
+          couple.y + MEMBER_CIRCLE_RADIUS / 2 + 25, //TODO: hardcodeed 20
           paint,
           canvas,
         );
@@ -61,28 +65,28 @@ class FamilyCanvas extends CustomPainter {
   }
 
   drawCouple(CoupleModal couple, Paint paint, Canvas canvas) {
-    // drawBoundary(couple.x, couple.y, canvas, paint);
+    drawBoundary(couple.x, couple.y, canvas, paint);
 
     drawCircle(
       couple.x - MEMBER_HORIZONTAL_GAP,
       couple.y,
-      CIRCLE_RADIUS,
+      MEMBER_CIRCLE_RADIUS,
       paint,
       canvas,
     );
     drawCircle(
       couple.x + MEMBER_HORIZONTAL_GAP,
       couple.y,
-      CIRCLE_RADIUS,
+      MEMBER_CIRCLE_RADIUS,
       paint,
       canvas,
     );
 
     //horizotal line btw couple
     drawLine(
-      couple.x + MEMBER_HORIZONTAL_GAP - CIRCLE_RADIUS,
+      couple.x + MEMBER_HORIZONTAL_GAP - MEMBER_CIRCLE_RADIUS,
       couple.y,
-      couple.x - MEMBER_HORIZONTAL_GAP + CIRCLE_RADIUS,
+      couple.x - MEMBER_HORIZONTAL_GAP + MEMBER_CIRCLE_RADIUS,
       couple.y,
       paint,
       canvas,
@@ -100,15 +104,15 @@ class FamilyCanvas extends CustomPainter {
 
     drawText(
       couple.member1,
-      couple.x - MEMBER_HORIZONTAL_GAP - CIRCLE_RADIUS,
-      couple.y + CIRCLE_RADIUS / 2 + 25, //TODO: hardcodeed 20
+      couple.x - MEMBER_HORIZONTAL_GAP - MEMBER_CIRCLE_RADIUS,
+      couple.y + MEMBER_CIRCLE_RADIUS / 2 + 25, //TODO: hardcodeed 20
       paint,
       canvas,
     );
     drawText(
       couple.member2,
-      couple.x + MEMBER_HORIZONTAL_GAP - CIRCLE_RADIUS,
-      couple.y + CIRCLE_RADIUS / 2 + 25, //TODO: hardcodeed 20
+      couple.x + MEMBER_HORIZONTAL_GAP - MEMBER_CIRCLE_RADIUS,
+      couple.y + MEMBER_CIRCLE_RADIUS / 2 + 25, //TODO: hardcodeed 20
       paint,
       canvas,
     );
@@ -126,8 +130,8 @@ class FamilyCanvas extends CustomPainter {
 
     Rect rect = Rect.fromCenter(
       center: offset,
-      width: MEMBER_HORIZONTAL_GAP * 2 + CIRCLE_RADIUS * 2,
-      height: CIRCLE_RADIUS * 2,
+      width: WIDTH_OF_COUPLE,
+      height: HEIGHT_OF_COUPLE,
     );
 
     canvas.drawRect(rect, paint);
@@ -234,43 +238,47 @@ class FamilyCanvas extends CustomPainter {
       ..color = Colors.red
       ..style = PaintingStyle.stroke;
 
-    // canvas.drawCircle(
-    //   Offset(
-    //     couple.x - panX,
-    //     couple.y + CIRCLE_RADIUS + 10 - panY, //TODO: hard coded
-    //   ),
-    //   10, //TODO: hard coded
-    //   paint,
-    // );
+    canvas.drawCircle(
+      Offset(
+        couple.x - panX,
+        couple.y + MEMBER_CIRCLE_RADIUS + BUTTON_CIRCLE_RADIUS - panY,
+      ),
+      BUTTON_CIRCLE_RADIUS,
+      paint,
+    );
 
     paint
       ..color = Colors.black
       ..strokeWidth = 1.2;
 
     //draw arrow
+
     drawLine(
       couple.x,
-      couple.y + CIRCLE_RADIUS, //TODO: hard coded
-      couple.x,
-      couple.y + CIRCLE_RADIUS + 20, //TODO: hard coded
+      couple.y +
+          MEMBER_CIRCLE_RADIUS +
+          BUTTON_CIRCLE_RADIUS +
+          BUTTON_CIRCLE_RADIUS,
+      couple.x + 5, //TODO: hard code
+      couple.y +
+          MEMBER_CIRCLE_RADIUS +
+          BUTTON_CIRCLE_RADIUS -
+          3, //TODO: hard code
       paint,
       canvas,
     );
 
     drawLine(
       couple.x,
-      couple.y + CIRCLE_RADIUS + 20,
-      couple.x + 5,
-      couple.y + CIRCLE_RADIUS + 20 - 10,
-      paint,
-      canvas,
-    );
-
-    drawLine(
-      couple.x,
-      couple.y + CIRCLE_RADIUS + 20,
-      couple.x - 5,
-      couple.y + CIRCLE_RADIUS + 20 - 10,
+      couple.y +
+          MEMBER_CIRCLE_RADIUS +
+          BUTTON_CIRCLE_RADIUS +
+          BUTTON_CIRCLE_RADIUS,
+      couple.x - 5, //TODO: hard code
+      couple.y +
+          MEMBER_CIRCLE_RADIUS +
+          BUTTON_CIRCLE_RADIUS -
+          3, //TODO: hard code
       paint,
       canvas,
     );

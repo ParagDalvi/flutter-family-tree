@@ -52,13 +52,6 @@ class _FamilyTreeState extends State<FamilyTree> {
             oldPointY = currentY - panY;
 
             checkIfClickedOnCouple(currentX, currentY);
-
-            List<CoupleModal> clickedCouple =
-                getCouplesThatAreClicked(currentX, currentY);
-
-            moveExistingCouples(clickedCouple);
-
-            addChildren(clickedCouple, currentX, currentY);
           },
           child: CustomPaint(
             child: Container(),
@@ -73,31 +66,42 @@ class _FamilyTreeState extends State<FamilyTree> {
     );
   }
 
-  List<CoupleModal> getCouplesThatAreClicked(double currentX, double currentY) {
-    List<CoupleModal> clickedCouple = allCouples.where((couple) {
-      return currentX >= couple.x - MEMBER_HORIZONTAL_GAP - CIRCLE_RADIUS &&
-          currentX <= couple.x + MEMBER_HORIZONTAL_GAP + CIRCLE_RADIUS &&
-          currentY >= couple.y - CIRCLE_RADIUS &&
-          currentY <= couple.y + CIRCLE_RADIUS;
+  void checkIfClickedOnCouple(double currentX, double currentY) {
+    List<CoupleModal> clickedCoupleList = allCouples.where((couple) {
+      double xMax = couple.x + WIDTH_OF_COUPLE / 2;
+      double xMin = couple.x - WIDTH_OF_COUPLE / 2;
+      double yMax = couple.y + HEIGHT_OF_COUPLE / 2;
+      double yMin = couple.y - HEIGHT_OF_COUPLE / 2;
+
+      return currentX >= xMin &&
+          currentX <= xMax &&
+          currentY >= yMin &&
+          currentY <= yMax;
     }).toList();
-    return clickedCouple;
+
+    if (clickedCoupleList.length == 0) return;
+
+    CoupleModal selectedCouple = clickedCoupleList[0];
+
+    //load children button constraints
+    double childButtonXMax = selectedCouple.x + BUTTON_CIRCLE_RADIUS;
+    double childButtonXMin = selectedCouple.x - BUTTON_CIRCLE_RADIUS;
+    double childButtonYMax =
+        selectedCouple.y + MEMBER_CIRCLE_RADIUS + (2 * BUTTON_CIRCLE_RADIUS);
+    double childButtonYMin = selectedCouple.y + MEMBER_CIRCLE_RADIUS;
+
+    //conditions for children button
+    if (currentX >= childButtonXMin &&
+        currentX <= childButtonXMax &&
+        currentY >= childButtonYMin &&
+        currentY <= childButtonYMax) {
+      performAddChildren(selectedCouple, currentX, currentY);
+    }
   }
 
-  void addChildren(
-      List<CoupleModal> clickedCouple, double currentX, double currentY) {
-    if (clickedCouple.length == 0 ||
-        (clickedCouple[0].areChildrenLoaded) ||
-        clickedCouple[0].children.length == 0) return;
-    CoupleModal selectedCouple = clickedCouple[0];
-    double centerX = selectedCouple.x;
+  void addChildrenToList(CoupleModal selectedCouple) {
     double centerY = selectedCouple.y;
 
-    //relation -> single
-    if (selectedCouple.member1 == null || selectedCouple.member2 == null) {
-      //if not clicked of single member
-      if (currentX > centerX + CIRCLE_RADIUS ||
-          currentX < centerX - CIRCLE_RADIUS) return;
-    }
     double startPosition;
 
     List childrenIds = selectedCouple.children;
@@ -128,12 +132,7 @@ class _FamilyTreeState extends State<FamilyTree> {
     setState(() {});
   }
 
-  void moveExistingCouples(List<CoupleModal> clickedCouple) {
-    if (clickedCouple.length == 0 ||
-        (clickedCouple[0].areChildrenLoaded) ||
-        clickedCouple[0].children.length == 0) return;
-    CoupleModal selectedCouple = clickedCouple[0];
-
+  void moveExistingCouples(CoupleModal selectedCouple) {
     double startPosition;
 
     List childrenIds = selectedCouple.children;
@@ -163,7 +162,11 @@ class _FamilyTreeState extends State<FamilyTree> {
     }
   }
 
-  checkIfClickedOnCouple(double currentX, double currentY) {}
+  void performAddChildren(
+      CoupleModal selectedCouple, double currentX, double currentY) {
+    moveExistingCouples(selectedCouple);
+    addChildrenToList(selectedCouple);
+  }
 }
 
 CoupleModal findAndGetCouple(String id, double x, double y) {

@@ -1,0 +1,8 @@
+const double CIRCLE_RADIUS = 15;
+
+const double MEMBER_HORIZONTAL_GAP = 30;
+
+const double COUPLE_HORIZONTAL_GAP = 40;
+const double COUPLE_VERTICAL_GAP = 100;
+
+const double WIDTH_OF_COUPLE = 2 * MEMBER_HORIZONTAL_GAP + 2 * CIRCLE_RADIUS;

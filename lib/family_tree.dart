@@ -210,7 +210,6 @@ class _FamilyTreeState extends State<FamilyTree> {
     CoupleModal parents = findAndGetCouple(
         parentId, selectedCouple.x + 20, selectedCouple.y - 100);
     allCouples.add(parents);
-    performAddChildren(parents);
   }
 }
 

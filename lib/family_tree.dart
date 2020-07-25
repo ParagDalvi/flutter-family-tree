@@ -95,7 +95,9 @@ class _FamilyTreeState extends State<FamilyTree> {
         currentX <= childButtonXMax &&
         currentY >= childButtonYMin &&
         currentY <= childButtonYMax) {
-      performAddChildren(selectedCouple, currentX, currentY);
+      performAddChildren(
+        selectedCouple,
+      );
       return;
     }
 
@@ -108,19 +110,16 @@ class _FamilyTreeState extends State<FamilyTree> {
     double parentsButtonYMin =
         selectedCouple.y - MEMBER_CIRCLE_RADIUS - (2 * BUTTON_CIRCLE_RADIUS);
 
+    //conditions for parent button
     if (currentX >= parentsButtonXMin &&
         currentX <= parentsButtonXMax &&
         currentY >= parentsButtonYMin &&
         currentY <= parentsButtonYMax) {
-      CoupleModal parents = findAndGetCouple(
-        selectedCouple.member2.parents[0],
-        selectedCouple.x,
-        selectedCouple.y - 100,
+      performAddParents(
+        selectedCouple,
+        currentX,
+        currentY,
       );
-
-      allCouples.add(parents);
-
-      return;
     }
   }
 
@@ -154,7 +153,7 @@ class _FamilyTreeState extends State<FamilyTree> {
     setState(() {});
   }
 
-  void moveExistingCouples(CoupleModal selectedCouple) {
+  void moveExistingCouplesForChildren(CoupleModal selectedCouple) {
     double startPosition;
 
     List childrenIds = selectedCouple.children;
@@ -185,9 +184,33 @@ class _FamilyTreeState extends State<FamilyTree> {
   }
 
   void performAddChildren(
-      CoupleModal selectedCouple, double currentX, double currentY) {
-    moveExistingCouples(selectedCouple);
+    CoupleModal selectedCouple,
+  ) {
+    moveExistingCouplesForChildren(selectedCouple);
     addChildrenToList(selectedCouple);
+  }
+
+  void performAddParents(
+    CoupleModal selectedCouple,
+    double currentX,
+    double currentY,
+  ) {
+    moveExistingCouplesForParents(selectedCouple);
+    addParentsToList(selectedCouple);
+  }
+
+  void moveExistingCouplesForParents(
+    CoupleModal selectedCouple,
+  ) {}
+
+  void addParentsToList(
+    CoupleModal selectedCouple,
+  ) {
+    String parentId = selectedCouple.member2.parents[0];
+    CoupleModal parents = findAndGetCouple(
+        parentId, selectedCouple.x + 20, selectedCouple.y - 100);
+    allCouples.add(parents);
+    performAddChildren(parents);
   }
 }
 

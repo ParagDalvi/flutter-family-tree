@@ -86,7 +86,7 @@ class FamilyCanvas extends CustomPainter {
     );
 
     //button circles for parent
-    if (!couple.member2.areParentsLoaded) {
+    if (couple.member2.parents != null && !couple.member2.areParentsLoaded) {
       paint
         ..color = Colors.red
         ..style = PaintingStyle.stroke;

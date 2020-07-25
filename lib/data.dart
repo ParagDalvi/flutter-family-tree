@@ -3,7 +3,7 @@ const members = [
     'name': 'krishnarao',
     'id': '1',
     'children': ['2', '4', '3'],
-    // 'spouse': '18'
+    'spouse': '18'
   },
   {
     'name': 'prakash',
@@ -20,6 +20,7 @@ const members = [
     'id': '4',
     'children': ['5', '6'],
     'spouse': '19',
+    'parents': ['1', '18'],
   },
   {
     'name': 'kartik',
@@ -97,5 +98,18 @@ const members = [
     'id': '19',
     'children': ['5', '6'],
     'spouse': '4',
+    'parents': ['20'],
+  },
+  {
+    'name': 'suv mother',
+    'id': '20',
+    'children': ['19'],
+    'spouse': '21',
+  },
+  {
+    'name': 'suv mother',
+    'id': '21',
+    'children': ['19'],
+    'spouse': '20',
   },
 ];

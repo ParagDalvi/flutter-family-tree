@@ -21,7 +21,7 @@ class _FamilyTreeState extends State<FamilyTree> {
   @override
   void initState() {
     super.initState();
-    CoupleModal topCouple = findAndGetCouple('1', 100, 100);
+    CoupleModal topCouple = findAndGetCouple('4', 100, 100);
     allCouples.add(topCouple);
   }
 
@@ -96,6 +96,31 @@ class _FamilyTreeState extends State<FamilyTree> {
         currentY >= childButtonYMin &&
         currentY <= childButtonYMax) {
       performAddChildren(selectedCouple, currentX, currentY);
+      return;
+    }
+
+    //load parents button constraints
+    double parentsButtonXMax =
+        selectedCouple.x + MEMBER_HORIZONTAL_GAP + BUTTON_CIRCLE_RADIUS;
+    double parentsButtonXMin =
+        selectedCouple.x + MEMBER_HORIZONTAL_GAP - BUTTON_CIRCLE_RADIUS;
+    double parentsButtonYMax = selectedCouple.y - MEMBER_CIRCLE_RADIUS;
+    double parentsButtonYMin =
+        selectedCouple.y - MEMBER_CIRCLE_RADIUS - (2 * BUTTON_CIRCLE_RADIUS);
+
+    if (currentX >= parentsButtonXMin &&
+        currentX <= parentsButtonXMax &&
+        currentY >= parentsButtonYMin &&
+        currentY <= parentsButtonYMax) {
+      CoupleModal parents = findAndGetCouple(
+        selectedCouple.member2.parents[0],
+        selectedCouple.x,
+        selectedCouple.y - 100,
+      );
+
+      allCouples.add(parents);
+
+      return;
     }
   }
 
@@ -116,9 +141,6 @@ class _FamilyTreeState extends State<FamilyTree> {
           (childrenIds.length ~/ 2 * COUPLE_HORIZONTAL_GAP);
 
     for (var i = 0; i < childrenIds.length; i++) {
-      if (i == selectedCouple.children.length - 1)
-        print(
-            'end ${startPosition + (i * WIDTH_OF_COUPLE) + (i * COUPLE_HORIZONTAL_GAP)}');
       String childId = childrenIds[i];
       allCouples.add(
         findAndGetCouple(
@@ -174,6 +196,7 @@ CoupleModal findAndGetCouple(String id, double x, double y) {
       members.where((member) => member['id'] == id).toList()[0];
   List children = membersRawData['children'];
   SingleMemberModal mainMember = SingleMemberModal.fromJson(membersRawData);
+  mainMember.areParentsLoaded = true;
   if (mainMember.spouse == null)
     return CoupleModal(
       coupleId: mainMember.id,

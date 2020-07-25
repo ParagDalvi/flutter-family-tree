@@ -4,13 +4,15 @@ class SingleMemberModal {
   final String id;
   final String name;
   final String spouse;
-  final String parent;
+  final List parents;
+  bool areParentsLoaded;
 
   SingleMemberModal({
     @required this.id,
     @required this.name,
     @required this.spouse,
-    @required this.parent,
+    @required this.parents,
+    @required this.areParentsLoaded,
   });
 
   factory SingleMemberModal.fromJson(rawData) {
@@ -18,7 +20,8 @@ class SingleMemberModal {
       id: rawData['id'],
       name: rawData['name'],
       spouse: rawData['spouse'],
-      parent: rawData['parent'],
+      parents: rawData['parents'],
+      areParentsLoaded: false,
     );
   }
 }

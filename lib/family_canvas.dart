@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:family_tree_0/data.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
@@ -67,6 +68,7 @@ class FamilyCanvas extends CustomPainter {
   drawCouple(CoupleModal couple, Paint paint, Canvas canvas) {
     drawBoundary(couple.x, couple.y, canvas, paint);
 
+    //member1
     drawCircle(
       couple.x - MEMBER_HORIZONTAL_GAP,
       couple.y,
@@ -74,6 +76,7 @@ class FamilyCanvas extends CustomPainter {
       paint,
       canvas,
     );
+    //member2
     drawCircle(
       couple.x + MEMBER_HORIZONTAL_GAP,
       couple.y,
@@ -81,6 +84,17 @@ class FamilyCanvas extends CustomPainter {
       paint,
       canvas,
     );
+
+    //button circles for parent
+    if (!couple.member2.areParentsLoaded) {
+      paint
+        ..color = Colors.red
+        ..style = PaintingStyle.stroke;
+
+      Offset center = Offset(couple.x + MEMBER_HORIZONTAL_GAP - panX,
+          couple.y - MEMBER_CIRCLE_RADIUS - BUTTON_CIRCLE_RADIUS - panY);
+      canvas.drawCircle(center, BUTTON_CIRCLE_RADIUS, paint);
+    }
 
     //horizotal line btw couple
     drawLine(

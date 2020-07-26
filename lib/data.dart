@@ -26,6 +26,8 @@ const members = [
     'name': 'kartik',
     'id': '5',
     'children': ['11', '12', '13', '14'],
+    'parents': ['4', '19'],
+    'spouse': '22',
   },
   {
     'name': 'krutika',
@@ -111,5 +113,11 @@ const members = [
     'id': '21',
     'children': ['19'],
     'spouse': '20',
+  },
+  {
+    'name': 'kar spouse',
+    'id': '22',
+    'children': ['11', '12', '13', '14'],
+    'spouse': '5',
   },
 ];

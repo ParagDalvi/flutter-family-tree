@@ -101,24 +101,43 @@ class _FamilyTreeState extends State<FamilyTree> {
       return;
     }
 
-    //load parents button constraints
+    //load parents button constraints of first member
     double parentsButtonXMax =
-        selectedCouple.x + MEMBER_HORIZONTAL_GAP + BUTTON_CIRCLE_RADIUS;
+        selectedCouple.x - MEMBER_HORIZONTAL_GAP + BUTTON_CIRCLE_RADIUS;
     double parentsButtonXMin =
-        selectedCouple.x + MEMBER_HORIZONTAL_GAP - BUTTON_CIRCLE_RADIUS;
+        selectedCouple.x - MEMBER_HORIZONTAL_GAP - BUTTON_CIRCLE_RADIUS;
     double parentsButtonYMax = selectedCouple.y - MEMBER_CIRCLE_RADIUS;
     double parentsButtonYMin =
         selectedCouple.y - MEMBER_CIRCLE_RADIUS - (2 * BUTTON_CIRCLE_RADIUS);
 
-    //conditions for parent button
+    //conditions for parent button of first member
     if (currentX >= parentsButtonXMin &&
         currentX <= parentsButtonXMax &&
         currentY >= parentsButtonYMin &&
         currentY <= parentsButtonYMax) {
       performAddParents(
         selectedCouple,
-        currentX,
-        currentY,
+        '1',
+      );
+    }
+
+    //load parents button constraints of second member
+    parentsButtonXMax =
+        selectedCouple.x + MEMBER_HORIZONTAL_GAP + BUTTON_CIRCLE_RADIUS;
+    parentsButtonXMin =
+        selectedCouple.x + MEMBER_HORIZONTAL_GAP - BUTTON_CIRCLE_RADIUS;
+    parentsButtonYMax = selectedCouple.y - MEMBER_CIRCLE_RADIUS;
+    parentsButtonYMin =
+        selectedCouple.y - MEMBER_CIRCLE_RADIUS - (2 * BUTTON_CIRCLE_RADIUS);
+
+    //conditions for parent button of second member
+    if (currentX >= parentsButtonXMin &&
+        currentX <= parentsButtonXMax &&
+        currentY >= parentsButtonYMin &&
+        currentY <= parentsButtonYMax) {
+      performAddParents(
+        selectedCouple,
+        '2',
       );
     }
   }
@@ -186,17 +205,29 @@ class _FamilyTreeState extends State<FamilyTree> {
   void performAddChildren(
     CoupleModal selectedCouple,
   ) {
+    if (selectedCouple.children.length == 0) return;
     moveExistingCouplesForChildren(selectedCouple);
     addChildrenToList(selectedCouple);
   }
 
   void performAddParents(
     CoupleModal selectedCouple,
-    double currentX,
-    double currentY,
+    String whichMember,
   ) {
-    moveExistingCouplesForParents(selectedCouple);
-    addParentsToList(selectedCouple);
+    String parentId;
+    if (whichMember == '1') {
+      if (selectedCouple.member1.parents.length == 0) return;
+      parentId = selectedCouple.member1.parents[0];
+    }
+    if (whichMember == '2') {
+      if (selectedCouple.member2.parents.length == 0) return;
+      parentId = selectedCouple.member2.parents[0];
+    }
+    // moveExistingCouplesForParents(selectedCouple);
+    addParentsToList(
+      selectedCouple,
+      parentId,
+    );
   }
 
   void moveExistingCouplesForParents(
@@ -205,11 +236,41 @@ class _FamilyTreeState extends State<FamilyTree> {
 
   void addParentsToList(
     CoupleModal selectedCouple,
+    String parentId,
   ) {
-    String parentId = selectedCouple.member2.parents[0];
-    CoupleModal parents = findAndGetCouple(
-        parentId, selectedCouple.x + 20, selectedCouple.y - 100);
-    allCouples.add(parents);
+    CoupleModal parentCouple = findAndGetCouple(
+      parentId,
+      null,
+      null,
+    );
+
+    //add children of parentCouple except the existing one
+    double startPosition =
+        selectedCouple.x + COUPLE_HORIZONTAL_GAP + WIDTH_OF_COUPLE;
+    double endPosition = startPosition;
+    int count = 0;
+
+    for (var i = 0; i < parentCouple.children.length; i++) {
+      String childId = parentCouple.children[i];
+      if (childId == selectedCouple.coupleId) continue;
+      endPosition = endPosition +
+          (count * WIDTH_OF_COUPLE) +
+          (count * COUPLE_HORIZONTAL_GAP);
+      count++;
+      CoupleModal childCouple = findAndGetCouple(
+        childId,
+        endPosition,
+        selectedCouple.y,
+      );
+      allCouples.add(childCouple);
+    }
+
+    double centerXForParent =
+        endPosition - selectedCouple.x + COUPLE_HORIZONTAL_GAP;
+    parentCouple.x = centerXForParent;
+    parentCouple.y = selectedCouple.y - COUPLE_VERTICAL_GAP;
+    parentCouple.areChildrenLoaded = true;
+    allCouples.add(parentCouple);
   }
 }
 
@@ -218,7 +279,6 @@ CoupleModal findAndGetCouple(String id, double x, double y) {
       members.where((member) => member['id'] == id).toList()[0];
   List children = membersRawData['children'];
   SingleMemberModal mainMember = SingleMemberModal.fromJson(membersRawData);
-  mainMember.areParentsLoaded = true;
   if (mainMember.spouse == null)
     return CoupleModal(
       coupleId: mainMember.id,

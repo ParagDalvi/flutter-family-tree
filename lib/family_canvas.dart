@@ -85,15 +85,38 @@ class FamilyCanvas extends CustomPainter {
       canvas,
     );
 
-    //button circles for parent
+    //button circles for parent--- 1st member
+    if (couple.member1.parents != null && !couple.member1.areParentsLoaded) {
+      paint
+        ..color = Colors.red
+        ..style = PaintingStyle.stroke;
+
+      Offset center = Offset(
+        couple.x - MEMBER_HORIZONTAL_GAP - panX,
+        couple.y - MEMBER_CIRCLE_RADIUS - BUTTON_CIRCLE_RADIUS - panY,
+      );
+      canvas.drawCircle(
+        center,
+        BUTTON_CIRCLE_RADIUS,
+        paint,
+      );
+    }
+
+    //button circles for parent--- 2nd member
     if (couple.member2.parents != null && !couple.member2.areParentsLoaded) {
       paint
         ..color = Colors.red
         ..style = PaintingStyle.stroke;
 
-      Offset center = Offset(couple.x + MEMBER_HORIZONTAL_GAP - panX,
-          couple.y - MEMBER_CIRCLE_RADIUS - BUTTON_CIRCLE_RADIUS - panY);
-      canvas.drawCircle(center, BUTTON_CIRCLE_RADIUS, paint);
+      Offset center = Offset(
+        couple.x + MEMBER_HORIZONTAL_GAP - panX,
+        couple.y - MEMBER_CIRCLE_RADIUS - BUTTON_CIRCLE_RADIUS - panY,
+      );
+      canvas.drawCircle(
+        center,
+        BUTTON_CIRCLE_RADIUS,
+        paint,
+      );
     }
 
     //horizotal line btw couple

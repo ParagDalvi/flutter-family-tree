@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class SingleMemberModal {
   final String id;
   final String name;
+  final String gender;
   final String spouse;
   final List parents;
   bool areParentsLoaded;
@@ -10,6 +11,7 @@ class SingleMemberModal {
   SingleMemberModal({
     @required this.id,
     @required this.name,
+    @required this.gender,
     @required this.spouse,
     @required this.parents,
     @required this.areParentsLoaded,
@@ -19,6 +21,7 @@ class SingleMemberModal {
     return SingleMemberModal(
       id: rawData['id'],
       name: rawData['name'],
+      gender: rawData['gender'],
       spouse: rawData['spouse'],
       parents: rawData['parents'],
       areParentsLoaded: false,

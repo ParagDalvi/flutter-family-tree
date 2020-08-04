@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
@@ -67,8 +68,11 @@ class FamilyCanvas extends CustomPainter {
         canvas: canvas,
       );
 
+      List colors = [Colors.red, Colors.green, Colors.black];
+      Random random = new Random();
+
       paint
-        ..color = Colors.black
+        ..color = colors[random.nextInt(3)]
         ..style = PaintingStyle.stroke;
       //lines for the children
       drawChildrenLines(
@@ -83,6 +87,26 @@ class FamilyCanvas extends CustomPainter {
         paint: paint,
         canvas: canvas,
       );
+
+      // TextSpan span = TextSpan(
+      //   style: TextStyle(
+      //     color: Colors.black,
+      //   ),
+      //   text: '${couple.x}, ${couple.y}',
+      // );
+      // TextPainter tp = TextPainter(
+      //   text: span,
+      //   textAlign: TextAlign.start,
+      //   textDirection: TextDirection.ltr,
+      // );
+      // tp.layout();
+      // tp.paint(
+      //   canvas,
+      //   Offset(
+      //     couple.x - panX,
+      //     couple.y + 25 - panY, //TODO: hard coded
+      //   ),
+      // );
     }
   }
 

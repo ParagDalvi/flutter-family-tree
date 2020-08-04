@@ -160,6 +160,7 @@ class FamilyCanvas extends CustomPainter {
     if (couple.member1.gender == 'm') {
       //members1 is male
       String text = couple.member1.name;
+
       span = TextSpan(
         style: TextStyle(
           color: Colors.black,
@@ -340,14 +341,14 @@ class FamilyCanvas extends CustomPainter {
   }) {
     if (couple.children.length == 0 || couple.areChildrenLoaded) return;
 
-    canvas.drawCircle(
-      Offset(
-        couple.x - panX,
-        couple.y + MEMBER_CIRCLE_RADIUS + BUTTON_CIRCLE_RADIUS - panY,
-      ),
-      BUTTON_CIRCLE_RADIUS,
-      paint,
-    );
+    // canvas.drawCircle(
+    //   Offset(
+    //     couple.x - panX,
+    //     couple.y + MEMBER_CIRCLE_RADIUS + BUTTON_CIRCLE_RADIUS - panY,
+    //   ),
+    //   BUTTON_CIRCLE_RADIUS,
+    //   paint,
+    // );
 
     paint
       ..color = Colors.black

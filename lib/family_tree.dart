@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:family_tree_0/data.dart';
 import 'package:family_tree_0/family_canvas.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
@@ -21,7 +23,7 @@ class _FamilyTreeState extends State<FamilyTree> {
   @override
   void initState() {
     super.initState();
-    CoupleModal topCouple = findAndGetCouple('7', 100, 100);
+    CoupleModal topCouple = findAndGetCouple('1', 100, 100);
     allCouples.add(topCouple);
   }
 
@@ -130,19 +132,21 @@ class _FamilyTreeState extends State<FamilyTree> {
     parentsButtonYMin =
         selectedCouple.y - MEMBER_CIRCLE_RADIUS - (2 * BUTTON_CIRCLE_RADIUS);
 
-    //conditions for parent button of first member
+    //conditions for parent button of male
     if (currentX >= parentsButtonXMin &&
         currentX <= parentsButtonXMax &&
         currentY >= parentsButtonYMin &&
         currentY <= parentsButtonYMax) {
       performAddParents(
         selectedCouple,
-        selectedCouple.member1.gender,
+        'm',
       );
-      selectedCouple.member1.areParentsLoaded = true;
+      selectedCouple.member1.gender == 'm'
+          ? selectedCouple.member1.areParentsLoaded = true
+          : selectedCouple.member2.areParentsLoaded = true;
     }
 
-    //load parents button constraints of second member
+    //load parents button constraints of female
     parentsButtonXMax =
         selectedCouple.x + MEMBER_HORIZONTAL_GAP + BUTTON_CIRCLE_RADIUS;
     parentsButtonXMin =
@@ -158,16 +162,19 @@ class _FamilyTreeState extends State<FamilyTree> {
         currentY <= parentsButtonYMax) {
       performAddParents(
         selectedCouple,
-        selectedCouple.member2.gender,
+        'f',
       );
-      selectedCouple.member2.areParentsLoaded = true;
+      selectedCouple.member1.gender == 'f'
+          ? selectedCouple.member1.areParentsLoaded = true
+          : selectedCouple.member2.areParentsLoaded = true;
     }
   }
 
   void performAddChildren(
     CoupleModal selectedCouple,
   ) {
-    if (selectedCouple.children.length == 0) return;
+    if (selectedCouple.children.length == 0 || selectedCouple.areChildrenLoaded)
+      return;
 
     moveExistingCouplesForChildren(
       childrenIds: selectedCouple.children,
@@ -236,13 +243,18 @@ class _FamilyTreeState extends State<FamilyTree> {
 
     for (var i = 0; i < childrenIds.length; i++) {
       String childId = childrenIds[i];
-      allCouples.add(
-        findAndGetCouple(
-          childId,
-          startPosition + (i * WIDTH_OF_COUPLE) + (i * COUPLE_HORIZONTAL_GAP),
-          coupleCenterY + COUPLE_VERTICAL_GAP,
-        ),
+      CoupleModal couple = findAndGetCouple(
+        childId,
+        startPosition + (i * WIDTH_OF_COUPLE) + (i * COUPLE_HORIZONTAL_GAP),
+        coupleCenterY + COUPLE_VERTICAL_GAP,
       );
+
+      //to mark the children's parents are loaded..
+      couple.member1.id == childId
+          ? couple.member1.areParentsLoaded = true
+          : couple.member2.areParentsLoaded = true;
+
+      allCouples.add(couple);
     }
     setState(() {});
   }
@@ -252,30 +264,92 @@ class _FamilyTreeState extends State<FamilyTree> {
     String whichMember,
   ) {
     String parentId;
-    if (whichMember == 'm') {
-      if (selectedCouple.member1.parents.length == 0 ||
-          selectedCouple.member1.areParentsLoaded) return;
-      parentId = selectedCouple.member1.parents[0];
-    }
-    if (whichMember == 'f') {
-      if (selectedCouple.member2.parents.length == 0 ||
-          selectedCouple.member2.areParentsLoaded) return;
-      parentId = selectedCouple.member2.parents[0];
-    }
-    moveExistingCouplesForParents(selectedCouple);
+
+    SingleMemberModal loadParentsOfThisMember =
+        selectedCouple.member1.gender == whichMember
+            ? selectedCouple.member1
+            : selectedCouple.member2;
+
+    if (loadParentsOfThisMember.parents.length == 0 ||
+        loadParentsOfThisMember.areParentsLoaded) return;
+    parentId = loadParentsOfThisMember.parents[0];
+
+    moveExistingCouplesForParents(
+      selectedCouple,
+      whichMember,
+    );
     addParentsToList(
       selectedCouple,
       parentId,
+      whichMember,
     );
   }
 
   void moveExistingCouplesForParents(
     CoupleModal selectedCouple,
-  ) {}
+    String gender,
+  ) {
+    double sinblingEndPositionX;
+    double siblingStartPositionX = selectedCouple.x;
+
+    if (gender == 'f') {
+      sinblingEndPositionX =
+          selectedCouple.x + WIDTH_OF_COUPLE + COUPLE_HORIZONTAL_GAP;
+
+      sinblingEndPositionX = sinblingEndPositionX +
+          ((COUPLE_HORIZONTAL_GAP + WIDTH_OF_COUPLE) *
+              (selectedCouple.children.length + 1));
+    } else {
+      sinblingEndPositionX =
+          selectedCouple.x - WIDTH_OF_COUPLE - COUPLE_HORIZONTAL_GAP;
+
+      sinblingEndPositionX = sinblingEndPositionX -
+          ((COUPLE_HORIZONTAL_GAP + WIDTH_OF_COUPLE) *
+              (selectedCouple.children.length + 1));
+    }
+
+    int xCount = 1;
+
+    for (var i = 0; i < allCouples.length; i++) {
+      CoupleModal couple = allCouples[i];
+
+      //this is because the selected couple's children should not move
+      bool flag = false;
+      selectedCouple.children.forEach((childID) {
+        if (couple.member1.id == childID || couple.member2?.id == childID)
+          flag = true;
+      });
+      if (flag) continue;
+
+      if (couple.x > siblingStartPositionX && gender == 'f') {
+        // couple.x = ((sinblingEndPositionX - siblingStartPositionX) +
+        //     couple.x +
+        //     COUPLE_HORIZONTAL_GAP +
+        //     WIDTH_OF_COUPLE);
+        couple.x = xCount *
+            (sinblingEndPositionX + COUPLE_HORIZONTAL_GAP + WIDTH_OF_COUPLE);
+        xCount++;
+      }
+      if (couple.x < siblingStartPositionX && gender == 'm') {
+        // couple.x = ((sinblingEndPositionX - siblingStartPositionX) -
+        //     couple.x -
+        //     COUPLE_HORIZONTAL_GAP -
+        //     WIDTH_OF_COUPLE);
+        couple.x = xCount *
+            (sinblingEndPositionX - COUPLE_HORIZONTAL_GAP - WIDTH_OF_COUPLE);
+        xCount++;
+      }
+
+      if (couple.y <= selectedCouple.y - COUPLE_VERTICAL_GAP) {
+        couple.y -= COUPLE_VERTICAL_GAP;
+      }
+    }
+  }
 
   void addParentsToList(
     CoupleModal selectedCouple,
     String parentId,
+    String gender,
   ) {
     CoupleModal parentCouple = findAndGetCouple(
       parentId,
@@ -284,18 +358,31 @@ class _FamilyTreeState extends State<FamilyTree> {
     );
 
     //add children of parentCouple except the existing one
-    double sinblingPositionX =
-        selectedCouple.x + COUPLE_HORIZONTAL_GAP + WIDTH_OF_COUPLE;
+    double sinblingPositionX;
+    if (gender == 'f')
+      sinblingPositionX =
+          selectedCouple.x + COUPLE_HORIZONTAL_GAP + WIDTH_OF_COUPLE;
+    else
+      sinblingPositionX =
+          selectedCouple.x - COUPLE_HORIZONTAL_GAP - WIDTH_OF_COUPLE;
+
     double parentX = selectedCouple.x;
     int count = 0;
 
     for (var i = 0; i < parentCouple.children.length; i++) {
       String childId = parentCouple.children[i];
+
       if (childId == selectedCouple.member1.id ||
           childId == selectedCouple.member2.id) continue;
-      sinblingPositionX = sinblingPositionX +
-          (count * WIDTH_OF_COUPLE) +
-          (count * COUPLE_HORIZONTAL_GAP);
+
+      if (gender == 'f')
+        sinblingPositionX = sinblingPositionX +
+            (count * WIDTH_OF_COUPLE) +
+            (count * COUPLE_HORIZONTAL_GAP);
+      else
+        sinblingPositionX = sinblingPositionX -
+            (count * WIDTH_OF_COUPLE) -
+            (count * COUPLE_HORIZONTAL_GAP);
       count++;
 
       CoupleModal childCouple = findAndGetCouple(
@@ -306,11 +393,15 @@ class _FamilyTreeState extends State<FamilyTree> {
       allCouples.add(childCouple);
     }
 
-    parentX +=
-        ((count / 2) * WIDTH_OF_COUPLE) + ((count / 2) * COUPLE_HORIZONTAL_GAP);
+    if (gender == 'f')
+      parentX = parentX +
+          ((count / 2) * WIDTH_OF_COUPLE) +
+          ((count / 2) * COUPLE_HORIZONTAL_GAP);
+    else
+      parentX = parentX -
+          ((count / 2) * WIDTH_OF_COUPLE) -
+          ((count / 2) * COUPLE_HORIZONTAL_GAP);
 
-    // double centerXForParent =
-    //     (endPosition - selectedCouple.x + COUPLE_HORIZONTAL_GAP) / 2;
     parentCouple.x = parentX;
     parentCouple.y = selectedCouple.y - COUPLE_VERTICAL_GAP;
     parentCouple.areChildrenLoaded = true;

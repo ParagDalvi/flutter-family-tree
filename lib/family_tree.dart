@@ -332,22 +332,6 @@ class _FamilyTreeState extends State<FamilyTree> {
         }
       }
 
-      if (couple.y > selectedCouple.y) {
-        if (couple.x > siblingStartPositionX && gender == 'f') {
-          // if (sinblingEndPositionX - couple.x > 0)
-          //   couple.x = sinblingEndPositionX + (couple.x - sinblingEndPositionX);
-          // else
-          //   couple.x = sinblingEndPositionX + (sinblingEndPositionX - couple.x);
-        }
-
-        if (couple.x < siblingStartPositionX && gender == 'm') {
-          couple.x = ((sinblingEndPositionX) -
-              (couple.x + sinblingEndPositionX) -
-              COUPLE_HORIZONTAL_GAP -
-              WIDTH_OF_COUPLE);
-        }
-      }
-
       if (couple.y <= selectedCouple.y - COUPLE_VERTICAL_GAP) {
         couple.y -= COUPLE_VERTICAL_GAP;
       }

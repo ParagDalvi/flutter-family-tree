@@ -282,7 +282,7 @@ class _FamilyTreeState extends State<FamilyTree> {
     String parentId,
     String gender,
   ) {
-    double sinblingEndPositionX;
+    double siblingEndPositionX;
     double siblingStartPositionX = selectedCouple.x;
 
     CoupleModal parentCouple = findAndGetCouple(
@@ -292,50 +292,44 @@ class _FamilyTreeState extends State<FamilyTree> {
     );
 
     if (gender == 'f') {
-      sinblingEndPositionX = selectedCouple.x;
+      siblingEndPositionX = selectedCouple.x;
 
-      sinblingEndPositionX = sinblingEndPositionX +
+      siblingEndPositionX = siblingEndPositionX +
           ((COUPLE_HORIZONTAL_GAP) * (parentCouple.children.length - 1));
     }
     if (gender == 'm') {
-      sinblingEndPositionX = selectedCouple.x;
+      siblingEndPositionX = selectedCouple.x;
 
-      sinblingEndPositionX = sinblingEndPositionX -
+      siblingEndPositionX = siblingEndPositionX -
           ((COUPLE_HORIZONTAL_GAP) * (parentCouple.children.length - 1));
     }
-
-    int xCount = 1;
-    int belowXCount = 1;
 
     for (var i = 0; i < allCouples.length; i++) {
       CoupleModal couple = allCouples[i];
 
-      //this is because the selected couple's children should not move
-      // bool flag = false;
-      // selectedCouple.children.forEach((childID) {
-      //   if (couple.member1.id == childID || couple.member2?.id == childID)
-      //     flag = true;
-      // });
-      // if (flag) continue;
-
-      if (couple.y >= selectedCouple.y) {
-        if (couple.x > siblingStartPositionX && gender == 'f') {
-          couple.x = sinblingEndPositionX + (xCount * COUPLE_HORIZONTAL_GAP);
-          xCount++;
-        }
-
-        if (couple.x < siblingStartPositionX && gender == 'm') {
-          couple.x = ((sinblingEndPositionX) -
-              (couple.x + sinblingEndPositionX) -
-              COUPLE_HORIZONTAL_GAP -
-              WIDTH_OF_COUPLE);
-        }
-      }
-
+      //move couple up
       if (couple.y <= selectedCouple.y - COUPLE_VERTICAL_GAP) {
         couple.y -= COUPLE_VERTICAL_GAP;
       }
+
+      //move side ways
+      if (couple.y > selectedCouple.y) {
+        if (couple.x > siblingStartPositionX) {
+          if (couple.x == siblingEndPositionX) {
+            couple.x = siblingEndPositionX +
+                (siblingEndPositionX - siblingStartPositionX);
+          }
+          if (siblingEndPositionX - couple.x > 0) {
+            couple.x = siblingEndPositionX + (siblingEndPositionX - couple.x);
+          }
+          if (siblingEndPositionX - couple.x < 0) {
+            couple.x = siblingEndPositionX + (couple.x - siblingEndPositionX);
+          }
+        }
+        if (couple.x < siblingEndPositionX) {}
+      }
     }
+
     return parentCouple;
   }
 

@@ -307,60 +307,58 @@ class _FamilyTreeState extends State<FamilyTree> {
 
     //move couples in x
     allCouples.where((cup) => cup.y == selectedCouple.y).forEach((couple) {
-      if (couple.y == selectedCouple.y) {
-        //same y
-        if (couple.x > siblingStartPositionX && gender == 'f') {
-          //members on right
-          // couple.x = siblingEndPositionX - siblingStartPositionX + couple.x;
-          couple.x = couple.x + xFactorMul;
+      //same y
+      if (couple.x > siblingStartPositionX && gender == 'f') {
+        //members on right
+        // couple.x = siblingEndPositionX - siblingStartPositionX + couple.x;
+        couple.x = couple.x + xFactorMul;
 
-          //once the couple's position is adjusted along x, have to adjust their children to look good
-          if (couple.areChildrenLoaded) {
-            double startPosition;
-            if (couple.children.length % 2 == 0) {
-              startPosition = couple.x -
-                  (couple.children.length / 2 * COUPLE_HORIZONTAL_GAP) +
-                  COUPLE_HORIZONTAL_GAP / 2;
-            } else {
-              startPosition = couple.x -
-                  (couple.children.length ~/ 2 * COUPLE_HORIZONTAL_GAP);
-            }
+        //once the couple's position is adjusted along x, have to adjust their children to look good
+        if (couple.areChildrenLoaded) {
+          double startPosition;
+          if (couple.children.length % 2 == 0) {
+            startPosition = couple.x -
+                (couple.children.length / 2 * COUPLE_HORIZONTAL_GAP) +
+                COUPLE_HORIZONTAL_GAP / 2;
+          } else {
+            startPosition = couple.x -
+                (couple.children.length ~/ 2 * COUPLE_HORIZONTAL_GAP);
+          }
 
-            for (var j = 0; j < couple.children.length; j++) {
-              String childId = couple.children[j];
+          for (var j = 0; j < couple.children.length; j++) {
+            String childId = couple.children[j];
 
-              CoupleModal child = allCouples.firstWhere((cup) =>
-                  cup.member1.id == childId || cup.member2?.id == childId);
+            CoupleModal child = allCouples.firstWhere((cup) =>
+                cup.member1.id == childId || cup.member2?.id == childId);
 
-              child.x = startPosition + (j * COUPLE_HORIZONTAL_GAP);
-            }
+            child.x = startPosition + (j * COUPLE_HORIZONTAL_GAP);
           }
         }
-        if (couple.x < siblingStartPositionX && gender == 'm') {
-          //members on left
-          // couple.x = couple.x - (siblingEndPositionX + siblingStartPositionX);
-          couple.x = couple.x - xFactorMul;
+      }
+      if (couple.x < siblingStartPositionX && gender == 'm') {
+        //members on left
+        // couple.x = couple.x - (siblingEndPositionX + siblingStartPositionX);
+        couple.x = couple.x - xFactorMul;
 
-          //once the couple's position is adjusted along x, have to adjust their children to look good
-          if (couple.areChildrenLoaded) {
-            double startPosition;
-            if (couple.children.length % 2 == 0) {
-              startPosition = couple.x -
-                  (couple.children.length / 2 * COUPLE_HORIZONTAL_GAP) +
-                  COUPLE_HORIZONTAL_GAP / 2;
-            } else {
-              startPosition = couple.x -
-                  (couple.children.length ~/ 2 * COUPLE_HORIZONTAL_GAP);
-            }
+        //once the couple's position is adjusted along x, have to adjust their children to look good
+        if (couple.areChildrenLoaded) {
+          double startPosition;
+          if (couple.children.length % 2 == 0) {
+            startPosition = couple.x -
+                (couple.children.length / 2 * COUPLE_HORIZONTAL_GAP) +
+                COUPLE_HORIZONTAL_GAP / 2;
+          } else {
+            startPosition = couple.x -
+                (couple.children.length ~/ 2 * COUPLE_HORIZONTAL_GAP);
+          }
 
-            for (var j = 0; j < couple.children.length; j++) {
-              String childId = couple.children[j];
+          for (var j = 0; j < couple.children.length; j++) {
+            String childId = couple.children[j];
 
-              CoupleModal child = allCouples.firstWhere((cup) =>
-                  cup.member1.id == childId || cup.member2?.id == childId);
+            CoupleModal child = allCouples.firstWhere((cup) =>
+                cup.member1.id == childId || cup.member2?.id == childId);
 
-              child.x = startPosition + (j * COUPLE_HORIZONTAL_GAP);
-            }
+            child.x = startPosition + (j * COUPLE_HORIZONTAL_GAP);
           }
         }
       }
@@ -372,6 +370,24 @@ class _FamilyTreeState extends State<FamilyTree> {
       couple.y -= COUPLE_VERTICAL_GAP;
 
       //adjust their position according to children
+
+      if (couple.areChildrenLoaded) {
+        double firstChildPosX = allCouples
+            .firstWhere((cup) =>
+                cup.member1.id == couple.children[0] ||
+                cup.member2?.id == couple.children[0])
+            .x;
+        double lastChildPosX = allCouples
+            .firstWhere((cup) =>
+                cup.member1.id == couple.children[couple.children.length - 1] ||
+                cup.member2?.id == couple.children[couple.children.length - 1])
+            .x;
+
+        //this condition is required as couple may have only one child
+        if (firstChildPosX != lastChildPosX) {
+          couple.x = (lastChildPosX + firstChildPosX) / 2;
+        }
+      }
     });
 
     return parentCouple;

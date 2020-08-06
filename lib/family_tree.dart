@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:family_tree_0/data.dart';
 import 'package:family_tree_0/family_canvas.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
@@ -313,20 +311,16 @@ class _FamilyTreeState extends State<FamilyTree> {
       }
 
       //move side ways
-      if (couple.y > selectedCouple.y) {
-        if (couple.x > siblingStartPositionX) {
-          if (couple.x == siblingEndPositionX) {
-            couple.x = siblingEndPositionX +
-                (siblingEndPositionX - siblingStartPositionX);
-          }
-          if (siblingEndPositionX - couple.x > 0) {
-            couple.x = siblingEndPositionX + (siblingEndPositionX - couple.x);
-          }
-          if (siblingEndPositionX - couple.x < 0) {
-            couple.x = siblingEndPositionX + (couple.x - siblingEndPositionX);
-          }
+      if (couple.y == selectedCouple.y) {
+        //same y
+        if (couple.x > siblingStartPositionX && gender == 'f') {
+          //members on right
+          couple.x = siblingEndPositionX - siblingStartPositionX + couple.x;
         }
-        if (couple.x < siblingEndPositionX) {}
+        if (couple.x < siblingEndPositionX && gender == 'm') {
+          //members on left
+          couple.x = couple.x - (siblingEndPositionX + siblingStartPositionX);
+        }
       }
     }
 

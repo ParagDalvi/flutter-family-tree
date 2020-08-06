@@ -88,25 +88,25 @@ class FamilyCanvas extends CustomPainter {
         canvas: canvas,
       );
 
-      // TextSpan span = TextSpan(
-      //   style: TextStyle(
-      //     color: Colors.black,
-      //   ),
-      //   text: '${couple.x}, ${couple.y}',
-      // );
-      // TextPainter tp = TextPainter(
-      //   text: span,
-      //   textAlign: TextAlign.start,
-      //   textDirection: TextDirection.ltr,
-      // );
-      // tp.layout();
-      // tp.paint(
-      //   canvas,
-      //   Offset(
-      //     couple.x - panX,
-      //     couple.y + 25 - panY, //TODO: hard coded
-      //   ),
-      // );
+      TextSpan span = TextSpan(
+        style: TextStyle(
+          color: Colors.black,
+        ),
+        text: '${couple.x}',
+      );
+      TextPainter tp = TextPainter(
+        text: span,
+        textAlign: TextAlign.start,
+        textDirection: TextDirection.ltr,
+      );
+      tp.layout();
+      tp.paint(
+        canvas,
+        Offset(
+          couple.x - 15 - panX,
+          couple.y - 10 - panY, //TODO: hard coded
+        ),
+      );
     }
   }
 

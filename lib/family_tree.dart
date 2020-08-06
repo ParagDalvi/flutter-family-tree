@@ -302,6 +302,9 @@ class _FamilyTreeState extends State<FamilyTree> {
           ((COUPLE_HORIZONTAL_GAP) * (parentCouple.children.length - 1));
     }
 
+    double xFactorMul =
+        (parentCouple.children.length - 1) * COUPLE_HORIZONTAL_GAP;
+
     for (var i = 0; i < allCouples.length; i++) {
       CoupleModal couple = allCouples[i];
 
@@ -315,11 +318,13 @@ class _FamilyTreeState extends State<FamilyTree> {
         //same y
         if (couple.x > siblingStartPositionX && gender == 'f') {
           //members on right
-          couple.x = siblingEndPositionX - siblingStartPositionX + couple.x;
+          // couple.x = siblingEndPositionX - siblingStartPositionX + couple.x;
+          couple.x = couple.x + xFactorMul;
         }
-        if (couple.x < siblingEndPositionX && gender == 'm') {
+        if (couple.x < siblingStartPositionX && gender == 'm') {
           //members on left
-          couple.x = couple.x - (siblingEndPositionX + siblingStartPositionX);
+          // couple.x = couple.x - (siblingEndPositionX + siblingStartPositionX);
+          couple.x = couple.x - xFactorMul;
         }
       }
     }

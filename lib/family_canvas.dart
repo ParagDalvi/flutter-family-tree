@@ -28,12 +28,12 @@ class FamilyCanvas extends CustomPainter {
       //center position
       canvas.drawCircle(Offset(couple.x - panX, couple.y - panY), 1, paint);
 
-      drawBoundary(
-        centerX: couple.x - panX,
-        centerY: couple.y - panY,
-        canvas: canvas,
-        paint: paint,
-      );
+      // drawBoundary(
+      //   centerX: couple.x - panX,
+      //   centerY: couple.y - panY,
+      //   canvas: canvas,
+      //   paint: paint,
+      // );
 
       paint
         ..color = Colors.orange
@@ -72,7 +72,7 @@ class FamilyCanvas extends CustomPainter {
       Random random = new Random();
 
       paint
-        ..color = colors[random.nextInt(3)]
+        ..color = colors[2]
         ..style = PaintingStyle.stroke;
       //lines for the children
       drawChildrenLines(
@@ -88,25 +88,25 @@ class FamilyCanvas extends CustomPainter {
         canvas: canvas,
       );
 
-      TextSpan span = TextSpan(
-        style: TextStyle(
-          color: Colors.black,
-        ),
-        text: '${couple.x}',
-      );
-      TextPainter tp = TextPainter(
-        text: span,
-        textAlign: TextAlign.start,
-        textDirection: TextDirection.ltr,
-      );
-      tp.layout();
-      tp.paint(
-        canvas,
-        Offset(
-          couple.x - 15 - panX,
-          couple.y - 10 - panY, //TODO: hard coded
-        ),
-      );
+      // TextSpan span = TextSpan(
+      //   style: TextStyle(
+      //     color: Colors.black,
+      //   ),
+      //   text: '${couple.x}',
+      // );
+      // TextPainter tp = TextPainter(
+      //   text: span,
+      //   textAlign: TextAlign.start,
+      //   textDirection: TextDirection.ltr,
+      // );
+      // tp.layout();
+      // tp.paint(
+      //   canvas,
+      //   Offset(
+      //     couple.x - 15 - panX,
+      //     couple.y - 10 - panY, //TODO: hard coded
+      //   ),
+      // );
     }
   }
 

@@ -1,0 +1,142 @@
+import 'package:flutter/material.dart';
+import 'package:touchable/touchable.dart';
+
+class TestCanvas extends StatefulWidget {
+  @override
+  _TestCanvasState createState() => _TestCanvasState();
+}
+
+class _TestCanvasState extends State<TestCanvas> {
+  Offset _startingFocalPoint;
+
+  Offset _previousOffset;
+  Offset _offset = Offset.zero;
+
+  double _previousZoom;
+  double _zoom = 1.0;
+
+  List circles = [
+    {
+      'name': 'lala',
+      'position': Offset(0, 0),
+    }
+  ];
+
+  void _handleScaleStart(ScaleStartDetails details) {
+    setState(() {
+      _startingFocalPoint = details.focalPoint;
+      _previousOffset = _offset;
+      _previousZoom = _zoom;
+    });
+  }
+
+  void _handleScaleUpdate(ScaleUpdateDetails details) {
+    setState(() {
+      _zoom = _previousZoom * details.scale;
+
+      // Ensure that item under the focal point stays in the same place despite zooming
+      final Offset normalizedOffset =
+          (_startingFocalPoint - _previousOffset) / _previousZoom;
+      _offset = details.focalPoint - normalizedOffset * _zoom;
+    });
+  }
+
+  void _handleScaleReset() {
+    setState(() {
+      _zoom = 1.0;
+      _offset = Offset.zero;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onScaleStart: _handleScaleStart,
+      onScaleUpdate: _handleScaleUpdate,
+      onTapDown: (details) {
+        var position = details.globalPosition;
+        var x = MediaQuery.of(context).size.width;
+        var y = MediaQuery.of(context).size.height;
+        Size size = Size(x, y);
+        var aaa = size.center(Offset.zero) * _zoom + _offset;
+        var radius = size.width / 20.0 * _zoom;
+
+        for (var circle in circles) {
+          Offset off = circle['position'] + aaa;
+          if (position.dx <= off.dx + radius &&
+              position.dx >= off.dx - radius &&
+              position.dy <= off.dy + radius &&
+              position.dy >= off.dy - radius) {
+            print('clicked on ${circle['name']}');
+          }
+        }
+      },
+      // onDoubleTap: _handleScaleReset,
+      child: CustomPaint(
+        painter: _GesturePainter(
+          zoom: _zoom,
+          offset: _offset,
+          circles: circles,
+          parentBuildContext: context,
+        ),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+        ),
+      ),
+    );
+  }
+}
+
+class _GesturePainter extends CustomPainter {
+  const _GesturePainter({
+    @required this.zoom,
+    @required this.offset,
+    @required this.circles,
+    @required this.parentBuildContext,
+  });
+
+  final double zoom;
+  final Offset offset;
+  final List circles;
+
+  final BuildContext parentBuildContext;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Offset center = size.center(Offset.zero) * zoom + offset;
+    final double radius = size.width / 20.0 * zoom;
+
+    for (var circle in circles) {
+      canvas.drawCircle(
+        center - circle['position'],
+        radius,
+        Paint()..color = Colors.orange,
+      );
+
+      final textStyle = TextStyle(
+        color: Colors.white,
+        fontSize: 30,
+      );
+      final textSpan = TextSpan(
+        text: '${center - circle["position"]}',
+        style: textStyle,
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout(
+        minWidth: 0,
+        maxWidth: size.width,
+      );
+
+      textPainter.paint(canvas, center - circle['position']);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_GesturePainter oldPainter) {
+    return oldPainter.zoom != zoom || oldPainter.offset != offset;
+  }
+}

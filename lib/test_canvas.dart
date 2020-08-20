@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:touchable/touchable.dart';
 
 class TestCanvas extends StatefulWidget {
   @override
@@ -17,9 +16,13 @@ class _TestCanvasState extends State<TestCanvas> {
 
   List circles = [
     {
-      'name': 'lala',
+      'name': 'fathe',
       'position': Offset(0, 0),
-    }
+    },
+    {
+      'name': 'son',
+      'position': Offset(0, 100),
+    },
   ];
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -31,8 +34,9 @@ class _TestCanvasState extends State<TestCanvas> {
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
+    _zoom = _previousZoom * details.scale;
     setState(() {
-      _zoom = _previousZoom * details.scale;
+      _zoom = _zoom.clamp(0.7, 1.7430);
 
       // Ensure that item under the focal point stays in the same place despite zooming
       final Offset normalizedOffset =
@@ -50,38 +54,49 @@ class _TestCanvasState extends State<TestCanvas> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onScaleStart: _handleScaleStart,
-      onScaleUpdate: _handleScaleUpdate,
-      onTapDown: (details) {
-        var position = details.globalPosition;
-        var x = MediaQuery.of(context).size.width;
-        var y = MediaQuery.of(context).size.height;
-        Size size = Size(x, y);
-        var aaa = size.center(Offset.zero) * _zoom + _offset;
-        var radius = size.width / 20.0 * _zoom;
+    return Scaffold(
+      appBar: AppBar(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _handleScaleReset,
+        child: Icon(Icons.gps_not_fixed),
+      ),
+      body: GestureDetector(
+        onScaleStart: _handleScaleStart,
+        onScaleUpdate: _handleScaleUpdate,
+        onTapDown: (details) {
+          Offset position = details.globalPosition;
+          var x = MediaQuery.of(context).size.width;
+          var y = MediaQuery.of(context).size.height;
+          Size size = Size(x, y);
+          final Offset center = size.center(Offset.zero) * _zoom + _offset;
+          final double radius = size.width / 20.0 * _zoom;
 
-        for (var circle in circles) {
-          Offset off = circle['position'] + aaa;
-          if (position.dx <= off.dx + radius &&
-              position.dx >= off.dx - radius &&
-              position.dy <= off.dy + radius &&
-              position.dy >= off.dy - radius) {
-            print('clicked on ${circle['name']}');
+          for (var circle in circles) {
+            Offset off = Offset(
+              circle['position'].dx + center.dx,
+              circle['position'].dy + center.dy,
+            );
+
+            if (position.dx <= off.dx + radius &&
+                position.dx >= off.dx - radius &&
+                position.dy >= off.dy - radius &&
+                position.dy <= off.dy + radius) {
+              print('clicked on ${circle['name']}');
+            }
           }
-        }
-      },
-      // onDoubleTap: _handleScaleReset,
-      child: CustomPaint(
-        painter: _GesturePainter(
-          zoom: _zoom,
-          offset: _offset,
-          circles: circles,
-          parentBuildContext: context,
-        ),
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+        },
+        // onDoubleTap: _handleScaleReset,
+        child: CustomPaint(
+          painter: _GesturePainter(
+            zoom: _zoom,
+            offset: _offset,
+            circles: circles,
+            parentBuildContext: context,
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+          ),
         ),
       ),
     );
@@ -109,17 +124,17 @@ class _GesturePainter extends CustomPainter {
 
     for (var circle in circles) {
       canvas.drawCircle(
-        center - circle['position'],
+        center + circle['position'],
         radius,
         Paint()..color = Colors.orange,
       );
 
       final textStyle = TextStyle(
-        color: Colors.white,
-        fontSize: 30,
+        color: Colors.black,
+        fontSize: radius,
       );
       final textSpan = TextSpan(
-        text: '${center - circle["position"]}',
+        text: '${circle["name"]} ${center + circle["position"]}',
         style: textStyle,
       );
       final textPainter = TextPainter(
@@ -131,7 +146,7 @@ class _GesturePainter extends CustomPainter {
         maxWidth: size.width,
       );
 
-      textPainter.paint(canvas, center - circle['position']);
+      textPainter.paint(canvas, center + circle['position']);
     }
   }
 

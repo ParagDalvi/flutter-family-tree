@@ -55,7 +55,7 @@ class _TestCanvasState extends State<TestCanvas> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      // appBar: AppBar(),
       floatingActionButton: FloatingActionButton(
         onPressed: _handleScaleReset,
         child: Icon(Icons.gps_not_fixed),
@@ -73,9 +73,10 @@ class _TestCanvasState extends State<TestCanvas> {
 
           for (var circle in circles) {
             Offset off = Offset(
-              circle['position'].dx + center.dx,
-              circle['position'].dy + center.dy,
-            );
+                  circle['position'].dx + center.dx,
+                  circle['position'].dy + center.dy,
+                ) *
+                _zoom;
 
             if (position.dx <= off.dx + radius &&
                 position.dx >= off.dx - radius &&
@@ -91,7 +92,6 @@ class _TestCanvasState extends State<TestCanvas> {
             zoom: _zoom,
             offset: _offset,
             circles: circles,
-            parentBuildContext: context,
           ),
           child: Container(
             width: MediaQuery.of(context).size.width,
@@ -108,19 +108,19 @@ class _GesturePainter extends CustomPainter {
     @required this.zoom,
     @required this.offset,
     @required this.circles,
-    @required this.parentBuildContext,
   });
 
   final double zoom;
   final Offset offset;
   final List circles;
 
-  final BuildContext parentBuildContext;
-
   @override
   void paint(Canvas canvas, Size size) {
     final Offset center = size.center(Offset.zero) * zoom + offset;
-    final double radius = size.width / 20.0 * zoom;
+    // final double radius = size.width / 20.0 * zoom;
+    final double radius = 20;
+
+    canvas.scale(zoom);
 
     for (var circle in circles) {
       canvas.drawCircle(

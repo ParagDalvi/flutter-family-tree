@@ -1,5 +1,5 @@
 import 'package:family_tree_0/data.dart';
-import 'package:family_tree_0/family_canvas.dart';
+import 'package:family_tree_0/canvas/family_canvas.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
@@ -11,10 +11,13 @@ class FamilyTree extends StatefulWidget {
 }
 
 class _FamilyTreeState extends State<FamilyTree> {
-  double panX = 0;
-  double panY = 0;
-  double oldPointX = 0;
-  double oldPointY = 0;
+  Offset _startingFocalPoint;
+
+  Offset _previousOffset;
+  Offset _offset = Offset.zero;
+
+  double _previousZoom;
+  double _zoom = 1.0;
 
   List<CoupleModal> allCouples = [];
 
@@ -25,39 +28,46 @@ class _FamilyTreeState extends State<FamilyTree> {
     allCouples.add(topCouple);
   }
 
+  void _handleScaleStart(ScaleStartDetails details) {
+    setState(() {
+      _startingFocalPoint = details.focalPoint;
+      _previousOffset = _offset;
+      _previousZoom = _zoom;
+    });
+  }
+
+  void _handleScaleUpdate(ScaleUpdateDetails details) {
+    _zoom = _previousZoom * details.scale;
+    setState(() {
+      _zoom = _zoom.clamp(0.7, 1.7430);
+
+      // Ensure that item under the focal point stays in the same place despite zooming
+      final Offset normalizedOffset =
+          (_startingFocalPoint - _previousOffset) / _previousZoom;
+      _offset = details.focalPoint - normalizedOffset * _zoom;
+    });
+  }
+
+  void _handleScaleReset() {
+    setState(() {
+      _zoom = 1.0;
+      _offset = Offset.zero;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // appBar: AppBar(),
       body: Container(
         child: GestureDetector(
-          onPanUpdate: (details) {
-            double currentX = details.globalPosition.dx;
-            double currentY = details.globalPosition.dy;
-
-            setState(() {
-              panX += oldPointX - currentX;
-              panY += oldPointY - currentY;
-            });
-
-            oldPointX = currentX;
-            oldPointY = currentY;
-          },
-          onPanDown: (details) {
-            double currentX = details.globalPosition.dx + panX;
-            double currentY = details.globalPosition.dy + panY;
-
-            //-pan because i have added pan at to the current value at the top
-            oldPointX = currentX - panX;
-            oldPointY = currentY - panY;
-
-            checkIfClickedOnCouple(currentX, currentY);
-          },
+          onScaleStart: _handleScaleStart,
+          onScaleUpdate: _handleScaleUpdate,
           child: CustomPaint(
             child: Container(),
             painter: FamilyCanvas(
-              panX: panX,
-              panY: panY,
+              zoom: _zoom,
+              offset: _offset,
               allCouples: allCouples,
             ),
           ),

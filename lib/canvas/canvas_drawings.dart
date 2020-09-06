@@ -68,6 +68,27 @@ void startDrawing({
       paint,
     );
   }
+
+  final textStyle = TextStyle(
+    color: Colors.black,
+    fontSize: radius,
+  );
+  final textSpan = TextSpan(
+    text: '${center + Offset(couple.x, couple.y)}',
+    style: textStyle,
+  );
+  final textPainter = TextPainter(
+    text: textSpan,
+    textDirection: TextDirection.ltr,
+  );
+  textPainter.layout(
+    minWidth: 0,
+    maxWidth: 2000,
+  );
+
+  textPainter.paint(canvas, center + Offset(couple.x, couple.y + 20));
+
+  canvas.drawCircle(center + Offset(couple.x, couple.y), 1, paint);
 }
 
 void drawMember(

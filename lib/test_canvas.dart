@@ -78,6 +78,8 @@ class _TestCanvasState extends State<TestCanvas> {
                 ) *
                 _zoom;
 
+            print('at: $off and clicke at: $position');
+
             if (position.dx <= off.dx + radius &&
                 position.dx >= off.dx - radius &&
                 position.dy >= off.dy - radius &&

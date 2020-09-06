@@ -63,6 +63,7 @@ class _FamilyTreeState extends State<FamilyTree> {
         child: GestureDetector(
           onScaleStart: _handleScaleStart,
           onScaleUpdate: _handleScaleUpdate,
+          onTapDown: _handleTap,
           child: CustomPaint(
             child: Container(),
             painter: FamilyCanvas(
@@ -76,7 +77,33 @@ class _FamilyTreeState extends State<FamilyTree> {
     );
   }
 
-  void checkIfClickedOnCouple(double currentX, double currentY) {
+  void _handleTap(TapDownDetails details) {
+    Offset position = details.globalPosition;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
+    Size size = Size(width, height);
+
+    final Offset center = size.center(Offset.zero) * _zoom + _offset;
+    final double radius = size.width / 20 * _zoom;
+
+    for (var i = 0; i < allCouples.length; i++) {
+      CoupleModal couple = allCouples[i];
+      Offset offset = center + Offset(couple.x, couple.y);
+
+      if (position.dx <= offset.dx + radius &&
+          position.dx >= offset.dx - radius &&
+          position.dy >= offset.dy - radius &&
+          position.dy <= offset.dy + radius) {
+        print('clicked on ${couple.member1.name}');
+      }
+    }
+  }
+
+  void checkIfClickedOnCouple(
+    double currentX,
+    double currentY,
+  ) {
     List<CoupleModal> clickedCouple = allCouples.where((couple) {
       double xMax = couple.x + WIDTH_OF_COUPLE / 2;
       double xMin = couple.x - WIDTH_OF_COUPLE / 2;
@@ -421,7 +448,11 @@ class _FamilyTreeState extends State<FamilyTree> {
   }
 }
 
-CoupleModal findAndGetCouple(String id, double x, double y) {
+CoupleModal findAndGetCouple(
+  String id,
+  double x,
+  double y,
+) {
   var membersRawData = members.firstWhere((member) => member['id'] == id);
   List children = membersRawData['children'];
   SingleMemberModal mainMember = SingleMemberModal.fromJson(membersRawData);

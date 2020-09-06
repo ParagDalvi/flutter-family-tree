@@ -1,4 +1,5 @@
 import 'package:family_tree_0/family_tree.dart';
+import 'package:family_tree_0/test_canvas.dart';
 
 import 'data.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
       ),
       // home: MyHomePage(),
       home: FamilyTree(),
+      // home: TestCanvas(),
     );
   }
 }

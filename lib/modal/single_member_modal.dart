@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
 class SingleMemberModal {
   final String id;
@@ -6,6 +7,8 @@ class SingleMemberModal {
   final String gender;
   final String spouse;
   final List parents;
+  ui.Image image;
+  final String imageUrl;
   bool areParentsLoaded;
 
   SingleMemberModal({
@@ -15,6 +18,8 @@ class SingleMemberModal {
     @required this.spouse,
     @required this.parents,
     @required this.areParentsLoaded,
+    @required this.image,
+    @required this.imageUrl,
   });
 
   factory SingleMemberModal.fromJson(rawData) {
@@ -25,6 +30,8 @@ class SingleMemberModal {
       spouse: rawData['spouse'],
       parents: rawData['parents'],
       areParentsLoaded: false,
+      image: null,
+      imageUrl: rawData['imageUrl'],
     );
   }
 }

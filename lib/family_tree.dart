@@ -1,9 +1,11 @@
+import 'package:http/http.dart' as http;
 import 'package:family_tree_0/data.dart';
 import 'package:family_tree_0/canvas/family_canvas.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
+import 'dart:ui' as ui;
 
 class FamilyTree extends StatefulWidget {
   @override
@@ -27,6 +29,7 @@ class _FamilyTreeState extends State<FamilyTree> {
     super.initState();
     CoupleModal topCouple = findAndGetCouple('1', 100, 100);
     allCouples.add(topCouple);
+    getImageOfTheCouple(topCouple);
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -447,36 +450,62 @@ class _FamilyTreeState extends State<FamilyTree> {
     allCouples.add(parentCouple);
     setState(() {});
   }
-}
 
-CoupleModal findAndGetCouple(
-  String id,
-  double x,
-  double y,
-) {
-  var membersRawData = members.firstWhere((member) => member['id'] == id);
-  List children = membersRawData['children'];
-  SingleMemberModal mainMember = SingleMemberModal.fromJson(membersRawData);
-  if (mainMember.spouse == null)
-    return CoupleModal(
+  CoupleModal findAndGetCouple(
+    String id,
+    double x,
+    double y,
+  ) {
+    var membersRawData = members.firstWhere((member) => member['id'] == id);
+    List children = membersRawData['children'];
+    SingleMemberModal mainMember = SingleMemberModal.fromJson(membersRawData);
+
+    CoupleModal couple;
+    if (mainMember.spouse == null) {
+      couple = CoupleModal(
+        member1: mainMember,
+        member2: null,
+        children: children,
+        areChildrenLoaded: false,
+        x: x,
+        y: y,
+      );
+    }
+
+    var spouseRawData =
+        members.firstWhere((member) => member['id'] == mainMember.spouse);
+    SingleMemberModal spouse = SingleMemberModal.fromJson(spouseRawData);
+    couple = CoupleModal(
+      //TODO: thinkk about couple id
       member1: mainMember,
-      member2: null,
+      member2: spouse,
       children: children,
       areChildrenLoaded: false,
       x: x,
       y: y,
     );
 
-  var spouseRawData =
-      members.firstWhere((member) => member['id'] == mainMember.spouse);
-  SingleMemberModal spouse = SingleMemberModal.fromJson(spouseRawData);
-  return CoupleModal(
-    //TODO: thinkk about couple id
-    member1: mainMember,
-    member2: spouse,
-    children: children,
-    areChildrenLoaded: false,
-    x: x,
-    y: y,
-  );
+    return couple;
+  }
+
+  void getImageOfTheCouple(CoupleModal couple) async {
+    ui.Image image1 = await getImage(couple.member1.imageUrl);
+    ui.Image image2 = await getImage(couple.member2.imageUrl);
+    CoupleModal coupleFromList = allCouples.firstWhere((cup) => cup == couple);
+
+    setState(() {
+      coupleFromList.member1.image = image1;
+      coupleFromList.member2.image = image2;
+    });
+  }
+
+  Future<ui.Image> getImage(String url) async {
+    if (url == null) return null;
+    http.Response response = await http.get(url);
+    var codec =
+        await ui.instantiateImageCodec(response.bodyBytes.buffer.asUint8List());
+    // add additional checking for number of frames etc here
+    var frame = await codec.getNextFrame();
+    return frame.image;
+  }
 }

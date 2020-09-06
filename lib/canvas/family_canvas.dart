@@ -5,6 +5,7 @@ import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class FamilyCanvas extends CustomPainter {
   FamilyCanvas({
@@ -26,20 +27,28 @@ class FamilyCanvas extends CustomPainter {
 
     for (var i = 0; i < allCouples.length; i++) {
       CoupleModal couple = allCouples[i];
-      startDrawing(
-        canvas: canvas,
-        paint: paint,
-        couple: couple,
-        center: center,
-        zoom: zoom,
-        radius: radius,
-      );
+
+      if (couple.member1.image != null) {
+        canvas.drawImage(
+            couple.member1.image, center + Offset(couple.x, couple.y), paint);
+      } else
+        startDrawing(
+          canvas: canvas,
+          paint: paint,
+          couple: couple,
+          center: center,
+          zoom: zoom,
+          radius: radius,
+        );
     }
   }
 
   @override
   bool shouldRepaint(FamilyCanvas oldPainter) {
-    return oldPainter.zoom != zoom || oldPainter.offset != offset;
+    return oldPainter.zoom != zoom ||
+        oldPainter.offset != offset ||
+        listEquals(oldPainter.allCouples, allCouples);
+    // return true;
   }
 }
 

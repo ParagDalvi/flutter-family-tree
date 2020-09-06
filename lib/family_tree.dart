@@ -20,6 +20,7 @@ class _FamilyTreeState extends State<FamilyTree> {
   double _zoom = 1.0;
 
   List<CoupleModal> allCouples = [];
+  Image some;
 
   @override
   void initState() {

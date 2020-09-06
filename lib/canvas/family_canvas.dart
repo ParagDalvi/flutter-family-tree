@@ -26,7 +26,14 @@ class FamilyCanvas extends CustomPainter {
 
     for (var i = 0; i < allCouples.length; i++) {
       CoupleModal couple = allCouples[i];
-      startDrawing(couple, center, radius, canvas, paint);
+      startDrawing(
+        canvas: canvas,
+        paint: paint,
+        couple: couple,
+        center: center,
+        zoom: zoom,
+        radius: radius,
+      );
     }
   }
 

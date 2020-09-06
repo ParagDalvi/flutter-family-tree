@@ -3,13 +3,14 @@ import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
-void startDrawing(
+void startDrawing({
   CoupleModal couple,
   Offset center,
+  double zoom,
   double radius,
   Canvas canvas,
   Paint paint,
-) {
+}) {
   SingleMemberModal member1 = couple.member1;
   SingleMemberModal member2 = couple.member2;
 
@@ -31,7 +32,7 @@ void startDrawing(
   if (member1.gender == 'm') {
     drawMember(
       member1,
-      couple.x - MEMBER_HORIZONTAL_GAP,
+      couple.x - MEMBER_HORIZONTAL_GAP * zoom,
       couple.y,
       center,
       radius,
@@ -40,7 +41,7 @@ void startDrawing(
     );
     drawMember(
       member2,
-      couple.x + MEMBER_HORIZONTAL_GAP,
+      couple.x + MEMBER_HORIZONTAL_GAP * zoom,
       couple.y,
       center,
       radius,
@@ -50,7 +51,7 @@ void startDrawing(
   } else {
     drawMember(
       member1,
-      couple.x + MEMBER_HORIZONTAL_GAP,
+      couple.x + MEMBER_HORIZONTAL_GAP * zoom,
       couple.y,
       center,
       radius,
@@ -59,7 +60,7 @@ void startDrawing(
     );
     drawMember(
       member2,
-      couple.x - MEMBER_HORIZONTAL_GAP,
+      couple.x - MEMBER_HORIZONTAL_GAP * zoom,
       couple.y,
       center,
       radius,

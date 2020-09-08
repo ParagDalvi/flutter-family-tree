@@ -29,8 +29,73 @@ class FamilyCanvas extends CustomPainter {
       CoupleModal couple = allCouples[i];
 
       if (couple.member1.image != null) {
-        canvas.drawImage(
-            couple.member1.image, center + Offset(couple.x, couple.y), paint);
+        final Size imageSize = Size(100 * zoom, 100 * zoom);
+        final FittedSizes sizes = applyBoxFit(
+          BoxFit.cover,
+          Size(couple.member1.image.width.toDouble(),
+              couple.member1.image.height.toDouble()),
+          imageSize,
+        );
+        final Rect inputSubrect = Alignment.center.inscribe(
+          sizes.source,
+          Offset.zero & imageSize,
+        );
+        final Rect outputSubrect = Alignment.center.inscribe(
+          sizes.destination,
+          Rect.fromCenter(
+            center: center + Offset(couple.x, couple.y),
+            width: 100 * zoom,
+            height: 100 * zoom,
+          ),
+        );
+
+        // canvas.drawImageRect(
+        //   couple.member1.image,
+        //   inputSubrect,
+        //   outputSubrect,
+        //   paint,
+        // );
+
+        // canvas.drawImageRect(
+        //   couple.member1.image,
+        //   Rect.fromCenter(
+        //     center: center + Offset(couple.x, couple.y),
+        //     width: 100 / 2,
+        //     height: 100 / 2,
+        //   ),
+        //   Rect.fromCenter(
+        //     center: center + Offset(couple.x, couple.y),
+        //     width: 200 * zoom,
+        //     height: 200 * zoom,
+        //   ),
+        //   paint,
+        // );
+
+        canvas.drawImageRect(
+          couple.member1.image,
+          Alignment.center.inscribe(
+            Size(100 * zoom, 100 * zoom),
+            Rect.fromCenter(
+              center: center + Offset(couple.x, couple.y),
+              width: 100 / 2,
+              height: 100 / 2,
+            ),
+          ),
+          Alignment.center.inscribe(
+            Size(100 * zoom, 100 * zoom),
+            Rect.fromCenter(
+              center: center + Offset(couple.x, couple.y),
+              width: 200,
+              height: 200,
+            ),
+          ),
+          paint,
+        );
+
+        // canvas.drawImageRect(
+        //     couple.member1.image, inputSubrect, outputSubrect, paint);
+
+        canvas.drawCircle(center + Offset(couple.x, couple.y), 10, paint);
       } else
         startDrawing(
           canvas: canvas,

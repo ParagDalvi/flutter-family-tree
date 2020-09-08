@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:http/http.dart' as http;
 import 'package:family_tree_0/data.dart';
 import 'package:family_tree_0/canvas/family_canvas.dart';
@@ -6,6 +8,7 @@ import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
+import 'package:image/image.dart' as IMG;
 
 class FamilyTree extends StatefulWidget {
   @override
@@ -22,7 +25,6 @@ class _FamilyTreeState extends State<FamilyTree> {
   double _zoom = 1.0;
 
   List<CoupleModal> allCouples = [];
-  Image some;
 
   @override
   void initState() {
@@ -62,6 +64,7 @@ class _FamilyTreeState extends State<FamilyTree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.yellow,
       // appBar: AppBar(),
       body: Container(
         child: GestureDetector(
@@ -488,16 +491,17 @@ class _FamilyTreeState extends State<FamilyTree> {
     return couple;
   }
 
-  void getImageOfTheCouple(CoupleModal couple) async {
-    ui.Image image1 = await getImage(couple.member1.imageUrl);
-    ui.Image image2 = await getImage(couple.member2.imageUrl);
-    CoupleModal coupleFromList = allCouples.firstWhere((cup) => cup == couple);
+  // void getImageOfTheCouple(CoupleModal couple) async {
+  //   ui.Image image1 = await getImage(couple.member1.imageUrl);
+  //   ui.Image image2 = await getImage(couple.member2.imageUrl);
+  //   CoupleModal coupleFromList = allCouples.firstWhere((cup) => cup == couple);
 
-    setState(() {
-      coupleFromList.member1.image = image1;
-      coupleFromList.member2.image = image2;
-    });
-  }
+  //   setState(() {
+  //     coupleFromList.member1.image = image1;
+  //     coupleFromList.member2.image = image2;
+  //   });
+  //   print('added image');
+  // }
 
   Future<ui.Image> getImage(String url) async {
     if (url == null) return null;
@@ -507,5 +511,29 @@ class _FamilyTreeState extends State<FamilyTree> {
     // add additional checking for number of frames etc here
     var frame = await codec.getNextFrame();
     return frame.image;
+  }
+
+  getImageOfTheCouple(CoupleModal couple) async {
+    ui.Image image = await req(couple);
+    CoupleModal coupleFromList = allCouples.firstWhere((cup) => cup == couple);
+
+    setState(() {
+      coupleFromList.member1.image = image;
+      coupleFromList.member2.image = image;
+    });
+    print('added image');
+  }
+
+  Future<ui.Image> req(CoupleModal couple) async {
+    http.Response response = await http.get(couple.member1.imageUrl);
+    final data = response.bodyBytes;
+    final IMG.Image image = IMG.decodeImage(data);
+    final IMG.Image resized = IMG.copyResize(image, width: 100, height: 100);
+    final List<int> resizedBytes = IMG.encodePng(resized);
+    final Completer<ui.Image> completer = new Completer();
+
+    ui.decodeImageFromList(
+        resizedBytes, (ui.Image img) => completer.complete(img));
+    return completer.future;
   }
 }

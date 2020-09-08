@@ -22,7 +22,7 @@ class _TestState extends State<Test> {
   @override
   void initState() {
     super.initState();
-    allCouples.add(findAndGetCouple('3', -250.0, -100.0));
+    allCouples.add(findAndGetCouple('1', -250.0, -100.0));
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -141,122 +141,40 @@ class IndividualCoupleUI extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              margin: EdgeInsets.only(right: 10 * zoom),
-              child: _singleMember(
-                couple.member1.gender == 'm' ? couple.member1 : couple.member2,
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(left: 10 * zoom),
-              child: _singleMember(
-                couple.member2.gender == 'f' ? couple.member2 : couple.member1,
-              ),
-            ),
-          ],
-        ),
-        _getChildrenButton(couple),
-      ],
-    );
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Container(
-              height: (MEMBER_CIRCLE_RADIUS + 60) * zoom,
-              width: (MEMBER_CIRCLE_RADIUS + 60) * zoom,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black,
-                    blurRadius: 5.0,
-                    spreadRadius: 2.0,
+        couple.member2 == null
+            ? Container(
+                margin: EdgeInsets.only(right: 10 * zoom),
+                child: _singleMember(
+                  couple.member1.gender == 'm'
+                      ? couple.member1
+                      : couple.member2,
+                ),
+              )
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(right: 10 * zoom),
+                    child: _singleMember(
+                      couple.member1.gender == 'm'
+                          ? couple.member1
+                          : couple.member2,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 10 * zoom),
+                    child: _singleMember(
+                      couple.member2.gender == 'f'
+                          ? couple.member2
+                          : couple.member1,
+                    ),
                   ),
                 ],
-                color: couple.member1.gender == 'm'
-                    ? Colors.lightBlue
-                    : Colors.pinkAccent,
               ),
-            ),
-            Container(
-              height: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
-              width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.orangeAccent,
-                border: Border.all(
-                  color: Colors.black,
-                ),
-                image: DecorationImage(
-                  image: NetworkImage(
-                    // "https://api.adorable.io/avatars/285/${couple.member1.name}.png",
-                    // "https://avatars.dicebear.com/api/avataaars/${couple.member1.name}.svg",
-                    "https://i.pravatar.cc/150?u=${couple.member1.name}",
-                  ),
-                ),
-              ),
-            ),
-          ],
+        SizedBox(
+          height: 8 * zoom,
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            couple.member1.name.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              shadows: [
-                BoxShadow(
-                  offset: Offset(
-                    0,
-                    1,
-                  ),
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-          ),
-        ),
-        !couple.areChildrenLoaded && couple.children.length != 0
-            ? FlatButton(
-                child: Icon(Icons.arrow_downward),
-                onPressed: () {
-                  if (couple.areChildrenLoaded) return;
-
-                  double startPosition;
-
-                  if (couple.children.length % 2 == 0)
-                    startPosition = couple.x -
-                        (couple.children.length / 2 * COUPLE_HORIZONTAL_GAP) +
-                        COUPLE_HORIZONTAL_GAP /
-                            2; //this last addition is required
-                  else
-                    startPosition = couple.x -
-                        (couple.children.length ~/ 2 * COUPLE_HORIZONTAL_GAP);
-
-                  for (var i = 0; i < couple.children.length; i++) {
-                    String childId = couple.children[i];
-
-                    addChildrenToList(
-                      childId,
-                      Offset(
-                        startPosition + (i * COUPLE_HORIZONTAL_GAP),
-                        couple.y + COUPLE_VERTICAL_GAP + 40,
-                      ),
-                    );
-                  }
-                  couple.areChildrenLoaded = true;
-                  // setState(() {});
-                },
-              )
-            : SizedBox.shrink(),
+        _getChildrenButton(couple),
       ],
     );
   }
@@ -273,13 +191,12 @@ class IndividualCoupleUI extends StatelessWidget {
 
   Widget _getParentsButton(SingleMemberModal member) {
     if (member.areParentsLoaded || member.parents.length == 0)
-      return SizedBox.shrink();
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8 * zoom),
-      child: Icon(
-        Icons.arrow_upward,
-        size: 25 * zoom,
-      ),
+      return SizedBox(
+        height: 25 * zoom,
+      );
+    return Icon(
+      Icons.arrow_upward,
+      size: 25 * zoom,
     );
   }
 
@@ -325,12 +242,9 @@ class IndividualCoupleUI extends StatelessWidget {
   Widget _getChildrenButton(CoupleModal couple) {
     if (couple.areChildrenLoaded || couple.children.length == 0)
       return SizedBox.shrink();
-    return Padding(
-      padding: EdgeInsets.only(top: 8 * zoom),
-      child: Icon(
-        Icons.arrow_downward,
-        size: 25 * zoom,
-      ),
+    return Icon(
+      Icons.arrow_downward,
+      size: 25 * zoom,
     );
   }
 }

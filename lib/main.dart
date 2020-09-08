@@ -1,8 +1,7 @@
 import 'package:family_tree_0/family_tree.dart';
-import 'package:family_tree_0/test_canvas.dart';
-
-import 'data.dart';
 import 'package:flutter/material.dart';
+
+import 'native_ui_test.dart';
 
 const MEMBER_RADIUS = 20.0;
 const HORIZONTAL_GAP = 70.0;
@@ -40,8 +39,8 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       // home: MyHomePage(),
-      home: FamilyTree(),
-      // home: TestCanvas(),
+      // home: FamilyTree(),
+      home: Test(),
     );
   }
 }

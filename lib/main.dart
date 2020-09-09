@@ -1,28 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_tree_0/family_tree.dart';
 import 'package:flutter/material.dart';
 
-import 'native_family_tree.dart';
+import 'native_ui/native_family_tree.dart';
 
-const MEMBER_RADIUS = 20.0;
-const HORIZONTAL_GAP = 70.0;
-const VERTICAL_GAP = 60.0;
-
-class MemberRaw {
-  double x, y;
-  final String id, name, spouse;
-  final List children;
-  bool areChildrenLoaded;
-
-  MemberRaw({
-    @required this.id,
-    @required this.x,
-    @required this.y,
-    @required this.name,
-    @required this.children,
-    @required this.spouse,
-    @required this.areChildrenLoaded,
-  });
-}
+final firestoreInstance = FirebaseFirestore.instance;
 
 void main() {
   runApp(MyApp());

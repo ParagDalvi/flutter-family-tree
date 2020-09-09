@@ -6,6 +6,8 @@ import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
+import 'firestore_family_function.dart';
+
 List<CoupleModal> allCouples = [];
 
 class NavtiveFamilyTree extends StatefulWidget {
@@ -93,45 +95,6 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   void addCoupleToList(String childId, Offset offset) async {
     allCouples.add(await getCoupleFromFirestore(childId, offset.dx, offset.dy));
     setState(() {});
-  }
-
-  Future<CoupleModal> getCoupleFromFirestore(
-    String id,
-    double x,
-    double y,
-  ) async {
-    CoupleModal couple;
-    DocumentSnapshot mainMemberRaw =
-        await firestoreInstance.collection('alpha_test').doc(id).get();
-    SingleMemberModal mainMember =
-        SingleMemberModal.fromJson(mainMemberRaw.data());
-
-    if (mainMember.spouse == '')
-      couple = CoupleModal(
-        areChildrenLoaded: false,
-        children: mainMemberRaw.data()['children'],
-        member1: mainMember,
-        member2: null,
-        x: x,
-        y: y,
-      );
-    else {
-      DocumentSnapshot spouseMemberRaw = await firestoreInstance
-          .collection('alpha_test')
-          .doc(mainMember.spouse)
-          .get();
-      SingleMemberModal spouseMember =
-          SingleMemberModal.fromJson(spouseMemberRaw.data());
-      couple = CoupleModal(
-        areChildrenLoaded: false,
-        children: mainMemberRaw.data()['children'],
-        member1: mainMember,
-        member2: spouseMember,
-        x: x,
-        y: y,
-      );
-    }
-    return couple;
   }
 }
 

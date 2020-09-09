@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_tree_0/family_tree.dart';
 import 'package:family_tree_0/main.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
+
+List<CoupleModal> allCouples = [];
 
 class NavtiveFamilyTree extends StatefulWidget {
   @override
@@ -18,12 +21,16 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
 
   double _previousZoom;
   double _zoom = 1.0;
-  List<CoupleModal> allCouples = [];
 
   @override
   void initState() {
     super.initState();
-    allCouples.add(findAndGetCouple('1', -250.0, -100.0));
+    init();
+  }
+
+  void init() async {
+    allCouples.add(await getCoupleFromFirestore('0', -250.0, -100.0));
+    setState(() {});
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -73,7 +80,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                   couple: couple,
                   offset: _offset,
                   zoom: _zoom,
-                  addChildrenToList: addChildrenToList,
+                  addChildrenToList: addCoupleToList,
                 );
               }).toList(),
             ),
@@ -83,9 +90,48 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
     );
   }
 
-  void addChildrenToList(String childId, Offset offset) {
-    allCouples.add(findAndGetCouple(childId, offset.dx, offset.dy));
+  void addCoupleToList(String childId, Offset offset) async {
+    allCouples.add(await getCoupleFromFirestore(childId, offset.dx, offset.dy));
     setState(() {});
+  }
+
+  Future<CoupleModal> getCoupleFromFirestore(
+    String id,
+    double x,
+    double y,
+  ) async {
+    CoupleModal couple;
+    DocumentSnapshot mainMemberRaw =
+        await firestoreInstance.collection('alpha_test').doc(id).get();
+    SingleMemberModal mainMember =
+        SingleMemberModal.fromJson(mainMemberRaw.data());
+
+    if (mainMember.spouse == '')
+      couple = CoupleModal(
+        areChildrenLoaded: false,
+        children: mainMemberRaw.data()['children'],
+        member1: mainMember,
+        member2: null,
+        x: x,
+        y: y,
+      );
+    else {
+      DocumentSnapshot spouseMemberRaw = await firestoreInstance
+          .collection('alpha_test')
+          .doc(mainMember.spouse)
+          .get();
+      SingleMemberModal spouseMember =
+          SingleMemberModal.fromJson(spouseMemberRaw.data());
+      couple = CoupleModal(
+        areChildrenLoaded: false,
+        children: mainMemberRaw.data()['children'],
+        member1: mainMember,
+        member2: spouseMember,
+        x: x,
+        y: y,
+      );
+    }
+    return couple;
   }
 }
 
@@ -151,7 +197,6 @@ class IndividualCoupleUI extends StatelessWidget {
                 ),
               )
             : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Container(

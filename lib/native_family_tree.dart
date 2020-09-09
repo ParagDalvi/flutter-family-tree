@@ -4,12 +4,12 @@ import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
-class Test extends StatefulWidget {
+class NavtiveFamilyTree extends StatefulWidget {
   @override
-  _TestState createState() => _TestState();
+  _NavtiveFamilyTreeState createState() => _NavtiveFamilyTreeState();
 }
 
-class _TestState extends State<Test> {
+class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   Offset _startingFocalPoint;
 
   Offset _previousOffset;
@@ -139,7 +139,6 @@ class IndividualCoupleUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisSize: MainAxisSize.min,
       children: [
         couple.member2 == null
             ? Container(
@@ -151,22 +150,28 @@ class IndividualCoupleUI extends StatelessWidget {
                 ),
               )
             : Row(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(right: 10 * zoom),
-                    child: _singleMember(
-                      couple.member1.gender == 'm'
-                          ? couple.member1
-                          : couple.member2,
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      margin: EdgeInsets.only(right: 10 * zoom),
+                      child: _singleMember(
+                        couple.member1.gender == 'm'
+                            ? couple.member1
+                            : couple.member2,
+                      ),
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.only(left: 10 * zoom),
-                    child: _singleMember(
-                      couple.member2.gender == 'f'
-                          ? couple.member2
-                          : couple.member1,
+                  Expanded(
+                    child: Container(
+                      alignment: Alignment.centerLeft,
+                      margin: EdgeInsets.only(left: 10 * zoom),
+                      child: _singleMember(
+                        couple.member2.gender == 'f'
+                            ? couple.member2
+                            : couple.member1,
+                      ),
                     ),
                   ),
                 ],
@@ -236,6 +241,8 @@ class IndividualCoupleUI extends StatelessWidget {
         fontWeight: FontWeight.w600,
         fontSize: 20 * zoom,
       ),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
     );
   }
 

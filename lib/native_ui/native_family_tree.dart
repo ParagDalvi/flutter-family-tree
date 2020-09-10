@@ -247,31 +247,22 @@ class IndividualCoupleUI extends StatelessWidget {
   }
 
   Widget _getImageOfMember(SingleMemberModal member) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: member.gender == 'm' ? Colors.blue : Colors.pink,
-          ),
-          width: 4 * MEMBER_CIRCLE_RADIUS * zoom,
-          height: 4 * MEMBER_CIRCLE_RADIUS * zoom,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: member.gender == 'm' ? Colors.blue : Colors.pink,
+          width: 4 * zoom,
         ),
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.orange,
-            image: DecorationImage(
-              image: NetworkImage(
-                "https://i.pravatar.cc/150?u=${member.name}",
-              ),
-            ),
+        shape: BoxShape.circle,
+        color: Colors.orange,
+        image: DecorationImage(
+          image: NetworkImage(
+            "https://i.pravatar.cc/150?u=${member.name}",
           ),
-          width: 3 * MEMBER_CIRCLE_RADIUS * zoom,
-          height: 3 * MEMBER_CIRCLE_RADIUS * zoom,
         ),
-      ],
+      ),
+      width: 3 * MEMBER_CIRCLE_RADIUS * zoom,
+      height: 3 * MEMBER_CIRCLE_RADIUS * zoom,
     );
   }
 
@@ -291,23 +282,22 @@ class IndividualCoupleUI extends StatelessWidget {
     if (couple.areChildrenLoaded || couple.children.length == 0)
       return SizedBox.shrink();
     return GestureDetector(
-      onTap: () {
-        print(
-            (couple.x * zoom).toString() + ',' + (couple.y * zoom).toString());
-
-        addCoupleToList(
-          childId: couple.children[0],
-          x: couple.x,
-          y: couple.y + 150,
-        );
-
-        couple.areChildrenLoaded = true;
-      },
+      onTap: loadChildren,
       child: Icon(
         Icons.arrow_downward,
         size: 25 * zoom,
       ),
     );
+  }
+
+  void loadChildren() {
+    addCoupleToList(
+      childId: couple.children[0],
+      x: couple.x,
+      y: couple.y + 150,
+    );
+
+    couple.areChildrenLoaded = true;
   }
 }
 

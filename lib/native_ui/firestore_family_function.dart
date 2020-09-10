@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
+import 'package:flutter/material.dart';
 
 import '../main.dart';
 
 Future<CoupleModal> getCoupleFromFirestore({
-  String id,
-  double x,
-  double y,
+  @required String id,
+  @required double x,
+  @required double y,
 }) async {
   CoupleModal couple;
   DocumentSnapshot mainMemberRaw =

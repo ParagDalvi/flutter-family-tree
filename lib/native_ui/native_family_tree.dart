@@ -1,5 +1,6 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
+import 'package:family_tree_0/native_ui/add_children.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
@@ -88,7 +89,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                   couple: couple,
                   offset: _offset,
                   zoom: _zoom,
-                  addChildrenToList: addCoupleToList,
+                  setParentState: setParentState,
                 );
               }).toList(),
             ),
@@ -98,14 +99,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
     );
   }
 
-  void addCoupleToList({String childId, double x, double y}) async {
-    allCouples.add(await getCoupleFromFirestore(
-      id: childId,
-      x: x,
-      y: y,
-    )
-      ..member1.areParentsLoaded = true);
-
+  void setParentState() {
     setState(() {});
   }
 }
@@ -116,13 +110,13 @@ class IndividualCoupleTransform extends StatelessWidget {
     @required this.zoom,
     @required this.offset,
     @required this.couple,
-    @required this.addChildrenToList,
+    @required this.setParentState,
   }) : super(key: key);
 
   final double zoom;
   final Offset offset;
   final CoupleModal couple;
-  final Function addChildrenToList;
+  final Function setParentState;
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +134,7 @@ class IndividualCoupleTransform extends StatelessWidget {
       child: IndividualCoupleUI(
         zoom: zoom,
         couple: couple,
-        addCoupleToList: addChildrenToList,
+        setParentState: setParentState,
         offset: offset,
       ),
     );
@@ -152,13 +146,13 @@ class IndividualCoupleUI extends StatelessWidget {
     Key key,
     @required this.zoom,
     @required this.couple,
-    @required this.addCoupleToList,
+    @required this.setParentState,
     @required this.offset,
   }) : super(key: key);
 
   final double zoom;
   final CoupleModal couple;
-  final Function addCoupleToList;
+  final Function setParentState;
   final Offset offset;
 
   @override
@@ -171,10 +165,9 @@ class IndividualCoupleUI extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red),
-                      ),
-                      margin: EdgeInsets.only(right: 10 * zoom),
+                      // decoration: BoxDecoration(
+                      //   border: Border.all(color: Colors.red),
+                      // ),
                       child: _singleMember(
                         couple.member1.gender == 'm'
                             ? couple.member1
@@ -189,11 +182,11 @@ class IndividualCoupleUI extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red),
-                      ),
+                      // decoration: BoxDecoration(
+                      //   border: Border.all(color: Colors.red),
+                      // ),
                       alignment: Alignment.centerRight,
-                      margin: EdgeInsets.only(right: 8 * zoom),
+                      margin: EdgeInsets.only(right: 4 * zoom),
                       child: _singleMember(
                         couple.member1.gender == 'm'
                             ? couple.member1
@@ -203,11 +196,11 @@ class IndividualCoupleUI extends StatelessWidget {
                   ),
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red),
-                      ),
+                      // decoration: BoxDecoration(
+                      //   border: Border.all(color: Colors.red),
+                      // ),
                       alignment: Alignment.centerLeft,
-                      margin: EdgeInsets.only(left: 8 * zoom),
+                      margin: EdgeInsets.only(left: 4 * zoom),
                       child: _singleMember(
                         couple.member2.gender == 'f'
                             ? couple.member2
@@ -261,8 +254,8 @@ class IndividualCoupleUI extends StatelessWidget {
           ),
         ),
       ),
-      width: 3 * MEMBER_CIRCLE_RADIUS * zoom,
-      height: 3 * MEMBER_CIRCLE_RADIUS * zoom,
+      width: MEMBER_CIRCLE_RADIUS * zoom,
+      height: MEMBER_CIRCLE_RADIUS * zoom,
     );
   }
 
@@ -282,7 +275,7 @@ class IndividualCoupleUI extends StatelessWidget {
     if (couple.areChildrenLoaded || couple.children.length == 0)
       return SizedBox.shrink();
     return GestureDetector(
-      onTap: loadChildren,
+      onTap: () => loadChildren(couple),
       child: Icon(
         Icons.arrow_downward,
         size: 25 * zoom,
@@ -290,14 +283,10 @@ class IndividualCoupleUI extends StatelessWidget {
     );
   }
 
-  void loadChildren() {
-    addCoupleToList(
-      childId: couple.children[0],
-      x: couple.x,
-      y: couple.y + 150,
-    );
-
-    couple.areChildrenLoaded = true;
+  void loadChildren(CoupleModal cuple) async {
+    await performAddChildren(couple);
+    setParentState();
+    print('done');
   }
 }
 

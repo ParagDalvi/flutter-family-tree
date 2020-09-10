@@ -1,10 +1,10 @@
-const double MEMBER_CIRCLE_RADIUS = 15;
+const double MEMBER_CIRCLE_RADIUS = 45;
 const double BUTTON_CIRCLE_RADIUS = 5;
 
 const double MEMBER_HORIZONTAL_GAP = 30;
 
-const double COUPLE_HORIZONTAL_GAP = 130;
-const double COUPLE_VERTICAL_GAP = 100;
+const double COUPLE_HORIZONTAL_GAP = 180;
+const double COUPLE_VERTICAL_GAP = 125;
 
 const double WIDTH_OF_COUPLE = 2 * MEMBER_HORIZONTAL_GAP +
     2 * MEMBER_CIRCLE_RADIUS; //this is correct, rethink

@@ -1,6 +1,7 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/native_ui/load_children.dart';
+import 'package:family_tree_0/native_ui/load_parents.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
 
   void init() async {
     allCouples.add(await getCoupleFromFirestore(
-      id: '0',
+      id: '4',
       x: 0,
       y: 0,
     ));
@@ -48,7 +49,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   void _handleScaleUpdate(ScaleUpdateDetails details) {
     _zoom = _previousZoom * details.scale;
     setState(() {
-      _zoom = _zoom.clamp(0.7, 1.7430);
+      _zoom = _zoom.clamp(0.4, 1.7430);
 
       // Ensure that item under the focal point stays in the same place despite zooming
       final Offset normalizedOffset =
@@ -67,6 +68,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(onPressed: _handleScaleReset),
       appBar: AppBar(
         title: Text('Family Tree'),
       ),
@@ -169,9 +171,7 @@ class IndividualCoupleUI extends StatelessWidget {
                       //   border: Border.all(color: Colors.red),
                       // ),
                       child: _singleMember(
-                        couple.member1.gender == 'm'
-                            ? couple.member1
-                            : couple.member2,
+                        couple.member1,
                       ),
                     ),
                   ),
@@ -199,7 +199,7 @@ class IndividualCoupleUI extends StatelessWidget {
                       // decoration: BoxDecoration(
                       //   border: Border.all(color: Colors.red),
                       // ),
-                      alignment: Alignment.centerLeft,
+                      alignment: Alignment.topLeft,
                       margin: EdgeInsets.only(left: 4 * zoom),
                       child: _singleMember(
                         couple.member2.gender == 'f'
@@ -233,9 +233,12 @@ class IndividualCoupleUI extends StatelessWidget {
       return SizedBox(
         height: 25 * zoom,
       );
-    return Icon(
-      Icons.arrow_upward,
-      size: 25 * zoom,
+    return GestureDetector(
+      onTap: () => loadParents(couple, member.gender),
+      child: Icon(
+        Icons.arrow_upward,
+        size: 25 * zoom,
+      ),
     );
   }
 
@@ -281,6 +284,12 @@ class IndividualCoupleUI extends StatelessWidget {
         size: 25 * zoom,
       ),
     );
+  }
+
+  void loadParents(CoupleModal couple, String gender) async {
+    await performLoadParents(selectedCouple: couple, gender: gender);
+    setParentState();
+    print('dome');
   }
 
   void loadChildren(CoupleModal cuple) async {

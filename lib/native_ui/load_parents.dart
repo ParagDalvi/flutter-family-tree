@@ -98,19 +98,7 @@ Future<CoupleModal> moveExistingCouples({
     couple.y -= COUPLE_VERTICAL_GAP;
 
     //adjust their position according to children
-
     if (couple.areChildrenLoaded) {
-      // double firstChildPosX = allCouples
-      //     .firstWhere((cup) =>
-      //         cup.member1.id == couple.children[0] ||
-      //         cup.member2?.id == couple.children[0])
-      //     .x;
-      // double lastChildPosX = allCouples
-      //     .firstWhere((cup) =>
-      //         cup.member1.id == couple.children[couple.children.length - 1] ||
-      //         cup.member2?.id == couple.children[couple.children.length - 1])
-      //     .x;
-
       List<CoupleModal> listOfAllHisChildren = [];
 
       for (var i = 0; i < couple.children.length; i++) {

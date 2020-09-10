@@ -1,6 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:family_tree_0/family_tree.dart';
-import 'package:family_tree_0/main.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/size_consts.dart';
@@ -31,7 +28,11 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   }
 
   void init() async {
-    allCouples.add(await getCoupleFromFirestore('0', -250.0, -100.0));
+    allCouples.add(await getCoupleFromFirestore(
+      id: '0',
+      x: 0,
+      y: 0,
+    ));
     setState(() {});
   }
 
@@ -68,15 +69,20 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
       appBar: AppBar(
         title: Text('Family Tree'),
       ),
-      body: Builder(
-        builder: (context) => GestureDetector(
-          onScaleStart: _handleScaleStart,
-          onScaleUpdate: _handleScaleUpdate,
-          child: Container(
-            color: Color(0xFFF0EFEF),
-            height: double.infinity,
-            width: double.infinity,
-            child: Stack(
+      body: GestureDetector(
+        onScaleStart: _handleScaleStart,
+        onScaleUpdate: _handleScaleUpdate,
+        child: Stack(
+          children: [
+            CustomPaint(
+              child: Container(),
+              painter: MyTempPainter(
+                zoom: _zoom,
+                offset: _offset,
+                allCouples: allCouples,
+              ),
+            ),
+            Stack(
               children: allCouples.map((couple) {
                 return IndividualCoupleTransform(
                   couple: couple,
@@ -86,14 +92,20 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                 );
               }).toList(),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  void addCoupleToList(String childId, Offset offset) async {
-    allCouples.add(await getCoupleFromFirestore(childId, offset.dx, offset.dy));
+  void addCoupleToList({String childId, double x, double y}) async {
+    allCouples.add(await getCoupleFromFirestore(
+      id: childId,
+      x: x,
+      y: y,
+    )
+      ..member1.areParentsLoaded = true);
+
     setState(() {});
   }
 }
@@ -128,7 +140,8 @@ class IndividualCoupleTransform extends StatelessWidget {
       child: IndividualCoupleUI(
         zoom: zoom,
         couple: couple,
-        addChildrenToList: addChildrenToList,
+        addCoupleToList: addChildrenToList,
+        offset: offset,
       ),
     );
   }
@@ -139,32 +152,48 @@ class IndividualCoupleUI extends StatelessWidget {
     Key key,
     @required this.zoom,
     @required this.couple,
-    @required this.addChildrenToList,
+    @required this.addCoupleToList,
+    @required this.offset,
   }) : super(key: key);
 
   final double zoom;
   final CoupleModal couple;
-  final Function addChildrenToList;
+  final Function addCoupleToList;
+  final Offset offset;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         couple.member2 == null
-            ? Container(
-                margin: EdgeInsets.only(right: 10 * zoom),
-                child: _singleMember(
-                  couple.member1.gender == 'm'
-                      ? couple.member1
-                      : couple.member2,
-                ),
-              )
-            : Row(
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Container(
-                      alignment: Alignment.centerRight,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
                       margin: EdgeInsets.only(right: 10 * zoom),
+                      child: _singleMember(
+                        couple.member1.gender == 'm'
+                            ? couple.member1
+                            : couple.member2,
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
+                      alignment: Alignment.centerRight,
+                      margin: EdgeInsets.only(right: 8 * zoom),
                       child: _singleMember(
                         couple.member1.gender == 'm'
                             ? couple.member1
@@ -174,8 +203,11 @@ class IndividualCoupleUI extends StatelessWidget {
                   ),
                   Expanded(
                     child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
                       alignment: Alignment.centerLeft,
-                      margin: EdgeInsets.only(left: 10 * zoom),
+                      margin: EdgeInsets.only(left: 8 * zoom),
                       child: _singleMember(
                         couple.member2.gender == 'f'
                             ? couple.member2
@@ -188,7 +220,7 @@ class IndividualCoupleUI extends StatelessWidget {
         SizedBox(
           height: 8 * zoom,
         ),
-        _getChildrenButton(couple),
+        _getChildrenButton(couple, context),
       ],
     );
   }
@@ -248,19 +280,63 @@ class IndividualCoupleUI extends StatelessWidget {
       member.name.toUpperCase(),
       style: TextStyle(
         fontWeight: FontWeight.w600,
-        fontSize: 20 * zoom,
+        fontSize: 15 * zoom,
       ),
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
     );
   }
 
-  Widget _getChildrenButton(CoupleModal couple) {
+  Widget _getChildrenButton(CoupleModal couple, BuildContext context) {
     if (couple.areChildrenLoaded || couple.children.length == 0)
       return SizedBox.shrink();
-    return Icon(
-      Icons.arrow_downward,
-      size: 25 * zoom,
+    return GestureDetector(
+      onTap: () {
+        print(
+            (couple.x * zoom).toString() + ',' + (couple.y * zoom).toString());
+
+        addCoupleToList(
+          childId: couple.children[0],
+          x: couple.x,
+          y: couple.y + 150,
+        );
+
+        couple.areChildrenLoaded = true;
+      },
+      child: Icon(
+        Icons.arrow_downward,
+        size: 25 * zoom,
+      ),
     );
+  }
+}
+
+class MyTempPainter extends CustomPainter {
+  final zoom;
+  final offset;
+  final allCouples;
+
+  MyTempPainter({this.zoom, this.offset, this.allCouples});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Offset center = size.center(Offset.zero) * zoom + offset;
+
+    for (var couple in allCouples) {
+      canvas.drawCircle(
+        Offset(
+          ((center.dx + couple.x) * zoom),
+          (center.dy + couple.y) * zoom,
+        ),
+        5,
+        Paint()..color = Colors.black,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    // TODO: implement shouldRepaint
+    return true;
   }
 }

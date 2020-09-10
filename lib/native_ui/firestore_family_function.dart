@@ -4,11 +4,11 @@ import 'package:family_tree_0/modal/single_member_modal.dart';
 
 import '../main.dart';
 
-Future<CoupleModal> getCoupleFromFirestore(
+Future<CoupleModal> getCoupleFromFirestore({
   String id,
   double x,
   double y,
-) async {
+}) async {
   CoupleModal couple;
   DocumentSnapshot mainMemberRaw =
       await firestoreInstance.collection('alpha_test').doc(id).get();

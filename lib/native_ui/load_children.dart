@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../size_consts.dart';
 import 'firestore_family_function.dart';
 
-Future performAddChildren(CoupleModal selectedCouple) async {
+Future performLoadChildren(CoupleModal selectedCouple) async {
   if (selectedCouple.children.length == 0 || selectedCouple.areChildrenLoaded)
     return null;
 

@@ -1,6 +1,6 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
-import 'package:family_tree_0/native_ui/add_children.dart';
+import 'package:family_tree_0/native_ui/load_children.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
@@ -284,7 +284,7 @@ class IndividualCoupleUI extends StatelessWidget {
   }
 
   void loadChildren(CoupleModal cuple) async {
-    await performAddChildren(couple);
+    await performLoadChildren(couple);
     setParentState();
     print('done');
   }

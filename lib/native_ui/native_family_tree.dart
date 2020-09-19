@@ -71,7 +71,6 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
 
   @override
   Widget build(BuildContext context) {
-    double statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: _handleScaleReset),
       // appBar: appbar,
@@ -86,7 +85,6 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                 zoom: _zoom,
                 offset: _offset,
                 allCouples: allCouples,
-                statusBarHeight: statusBarHeight,
               ),
             ),
             Stack(
@@ -98,6 +96,30 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                   setParentState: setParentState,
                 );
               }).toList(),
+            ),
+            Align(
+              alignment: Alignment.topCenter,
+              child: Container(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top,
+                    left: 20,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Family Tree',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                width: double.infinity,
+                height: 56 + MediaQuery.of(context).padding.top,
+                color: Colors.orange,
+              ),
             ),
           ],
         ),
@@ -310,10 +332,8 @@ class MyTempPainter extends CustomPainter {
   final double zoom;
   final Offset offset;
   final List<CoupleModal> allCouples;
-  final double statusBarHeight;
 
-  MyTempPainter(
-      {this.statusBarHeight, this.zoom, this.offset, this.allCouples});
+  MyTempPainter({this.zoom, this.offset, this.allCouples});
 
   @override
   void paint(Canvas canvas, Size size) {

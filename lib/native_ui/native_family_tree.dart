@@ -321,11 +321,7 @@ class MyTempPainter extends CustomPainter {
 
     for (var couple in allCouples) {
       canvas.drawCircle(
-        Offset(
-            ((center.dx + couple.x) * zoom) + ((size.width / 2)),
-            // ((center.dy + couple.y) * zoom) +
-            //     ((appbar.preferredSize.height)) -
-            //     ((statusBarHeight)),
+        Offset(((center.dx + couple.x) * zoom) + ((size.width / 2)),
             (center.dy + couple.y) * zoom),
         5,
         Paint()..color = Colors.black,

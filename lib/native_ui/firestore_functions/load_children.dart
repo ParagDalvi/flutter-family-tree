@@ -2,7 +2,7 @@ import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/native_ui/native_family_tree.dart';
 import 'package:flutter/material.dart';
 
-import '../size_consts.dart';
+import '../../size_consts.dart';
 import 'firestore_family_function.dart';
 
 Future performLoadChildren(CoupleModal selectedCouple) async {

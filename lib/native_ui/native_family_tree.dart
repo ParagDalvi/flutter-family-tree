@@ -1,11 +1,11 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
-import 'package:family_tree_0/native_ui/load_children.dart';
-import 'package:family_tree_0/native_ui/load_parents.dart';
+import 'package:family_tree_0/native_ui/firestore_functions/load_children.dart';
+import 'package:family_tree_0/native_ui/firestore_functions/load_parents.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
-import 'firestore_family_function.dart';
+import 'firestore_functions/firestore_family_function.dart';
 
 List<CoupleModal> allCouples = [];
 AppBar appbar = AppBar(
@@ -186,55 +186,80 @@ class IndividualCoupleUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         couple.member2 == null
             ? Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red),
-                      ),
-                      child: _singleMember(
-                        couple.member1,
-                      ),
+                  // Expanded(
+                  //   child: Container(
+                  //     // decoration: BoxDecoration(
+                  //     //   border: Border.all(color: Colors.red),
+                  //     // ),
+                  //     child: _singleMember(
+                  //       couple.member1,
+                  //     ),
+                  //   ),
+                  // ),
+                  Container(
+                    width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
+                    child: _singleMember(
+                      couple.member1,
                     ),
                   ),
                 ],
               )
             : Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red),
-                      ),
-                      alignment: Alignment.centerRight,
-                      margin: EdgeInsets.only(right: 4 * zoom),
-                      child: _singleMember(
-                        couple.member1.gender == 'm'
-                            ? couple.member1
-                            : couple.member2,
-                      ),
+                  // Expanded(
+                  //   child: Container(
+                  //     // decoration: BoxDecoration(
+                  //     //   border: Border.all(color: Colors.red),
+                  //     // ),
+                  //     alignment: Alignment.centerRight,
+                  //     margin: EdgeInsets.only(right: 4 * zoom),
+                  //     child: _singleMember(
+                  //       couple.member1.gender == 'm'
+                  //           ? couple.member1
+                  //           : couple.member2,
+                  //     ),
+                  //   ),
+                  // ),
+                  // Expanded(
+                  //   child: Container(
+                  //     // decoration: BoxDecoration(
+                  //     //   border: Border.all(color: Colors.red),
+                  //     // ),
+                  //     alignment: Alignment.topLeft,
+                  //     margin: EdgeInsets.only(left: 4 * zoom),
+                  //     child: _singleMember(
+                  //       couple.member2.gender == 'f'
+                  //           ? couple.member2
+                  //           : couple.member1,
+                  //     ),
+                  //   ),
+                  // ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red),
+                    ),
+                    width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
+                    child: _singleMember(
+                      couple.member1.gender == 'm'
+                          ? couple.member1
+                          : couple.member2,
                     ),
                   ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.red),
-                      ),
-                      alignment: Alignment.topLeft,
-                      margin: EdgeInsets.only(left: 4 * zoom),
-                      child: _singleMember(
-                        couple.member2.gender == 'f'
-                            ? couple.member2
-                            : couple.member1,
-                      ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red),
+                    ),
+                    width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
+                    child: _singleMember(
+                      couple.member2.gender == 'f'
+                          ? couple.member2
+                          : couple.member1,
                     ),
                   ),
                 ],
@@ -242,7 +267,7 @@ class IndividualCoupleUI extends StatelessWidget {
         SizedBox(
           height: 8 * zoom,
         ),
-        _getChildrenButton(couple, context),
+        _getChildrenButton(couple, zoom),
       ],
     );
   }
@@ -303,25 +328,31 @@ class IndividualCoupleUI extends StatelessWidget {
     );
   }
 
-  Widget _getChildrenButton(CoupleModal couple, BuildContext context) {
+  Widget _getChildrenButton(CoupleModal couple, double zoom) {
     if (couple.areChildrenLoaded || couple.children.length == 0)
       return SizedBox.shrink();
-    return GestureDetector(
-      onTap: () => loadChildren(couple),
-      child: Icon(
-        Icons.arrow_downward,
-        size: 25 * zoom,
+    return Padding(
+      padding: EdgeInsets.only(left: (MEMBER_CIRCLE_RADIUS + 40) * zoom),
+      // padding: EdgeInsets.all(0),
+      child: GestureDetector(
+        onTap: () => loadChildren(couple),
+        child: Icon(
+          Icons.arrow_downward,
+          size: 25 * zoom,
+        ),
       ),
     );
   }
 
   void loadParents(CoupleModal couple, String gender) async {
+    print('load parents clicked');
     await performLoadParents(selectedCouple: couple, gender: gender);
     setParentState();
     print('dome');
   }
 
   void loadChildren(CoupleModal cuple) async {
+    print('load children clicked');
     await performLoadChildren(couple);
     setParentState();
     print('done');
@@ -341,10 +372,32 @@ class MyTempPainter extends CustomPainter {
 
     for (var couple in allCouples) {
       canvas.drawCircle(
-        Offset(((center.dx + couple.x) * zoom) + ((size.width / 2)),
-            (center.dy + couple.y) * zoom),
-        5,
+        Offset(
+          ((center.dx + couple.x) * zoom) +
+              ((MEMBER_CIRCLE_RADIUS + 50) * zoom),
+          ((center.dy + couple.y)) * zoom +
+              ((25 + (MEMBER_CIRCLE_RADIUS / 2)) * zoom),
+        ),
+        1,
         Paint()..color = Colors.black,
+      );
+
+      canvas.drawLine(
+        Offset(
+          ((center.dx + couple.x) * zoom) +
+              ((MEMBER_CIRCLE_RADIUS + 50) * zoom),
+          ((center.dy + couple.y)) * zoom +
+              ((25 + 4 + MEMBER_CIRCLE_RADIUS / 2) * zoom),
+        ),
+        Offset(
+          ((center.dx + couple.x) * zoom) +
+              ((MEMBER_CIRCLE_RADIUS + 50) * zoom),
+          ((center.dy + couple.y)) * zoom +
+              ((25 + 4 + MEMBER_CIRCLE_RADIUS / 2) * zoom),
+        ),
+        Paint()
+          ..color = Colors.red
+          ..strokeWidth = 5,
       );
     }
   }

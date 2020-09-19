@@ -1,10 +1,10 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
-import 'package:family_tree_0/native_ui/firestore_family_function.dart';
+import 'package:family_tree_0/native_ui/firestore_functions/firestore_family_function.dart';
 import 'package:flutter/material.dart';
 
-import '../size_consts.dart';
-import 'native_family_tree.dart';
+import '../../size_consts.dart';
+import '../native_family_tree.dart';
 
 Future performLoadParents({
   @required CoupleModal selectedCouple,

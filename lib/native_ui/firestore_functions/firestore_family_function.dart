@@ -3,7 +3,7 @@ import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:flutter/material.dart';
 
-import '../main.dart';
+import '../../main.dart';
 
 Future<CoupleModal> getCoupleFromFirestore({
   @required String id,

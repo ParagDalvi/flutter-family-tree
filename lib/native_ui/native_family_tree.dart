@@ -74,7 +74,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
     double statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: _handleScaleReset),
-      appBar: appbar,
+      // appBar: appbar,
       body: GestureDetector(
         onScaleStart: _handleScaleStart,
         onScaleUpdate: _handleScaleUpdate,
@@ -307,9 +307,9 @@ class IndividualCoupleUI extends StatelessWidget {
 }
 
 class MyTempPainter extends CustomPainter {
-  final zoom;
-  final offset;
-  final allCouples;
+  final double zoom;
+  final Offset offset;
+  final List<CoupleModal> allCouples;
   final double statusBarHeight;
 
   MyTempPainter(
@@ -322,11 +322,11 @@ class MyTempPainter extends CustomPainter {
     for (var couple in allCouples) {
       canvas.drawCircle(
         Offset(
-          ((center.dx + couple.x) * zoom) + ((size.width / 2)),
-          ((center.dy + couple.y) * zoom) +
-              ((appbar.preferredSize.height)) -
-              ((statusBarHeight)),
-        ),
+            ((center.dx + couple.x) * zoom) + ((size.width / 2)),
+            // ((center.dy + couple.y) * zoom) +
+            //     ((appbar.preferredSize.height)) -
+            //     ((statusBarHeight)),
+            (center.dy + couple.y) * zoom),
         5,
         Paint()..color = Colors.black,
       );

@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'firestore_family_function.dart';
 
 List<CoupleModal> allCouples = [];
+AppBar appbar = AppBar(
+  title: Text('Family Tree'),
+);
 
 class NavtiveFamilyTree extends StatefulWidget {
   @override
@@ -31,11 +34,12 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
 
   void init() async {
     allCouples.add(await getCoupleFromFirestore(
-      id: '4',
+      id: '0',
       x: 0,
       y: 0,
     ));
     setState(() {});
+    print('added');
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
@@ -49,7 +53,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   void _handleScaleUpdate(ScaleUpdateDetails details) {
     _zoom = _previousZoom * details.scale;
     setState(() {
-      _zoom = _zoom.clamp(0.4, 1.7430);
+      _zoom = _zoom.clamp(0.1, 1.0);
 
       // Ensure that item under the focal point stays in the same place despite zooming
       final Offset normalizedOffset =
@@ -67,11 +71,10 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
 
   @override
   Widget build(BuildContext context) {
+    double statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: _handleScaleReset),
-      appBar: AppBar(
-        title: Text('Family Tree'),
-      ),
+      appBar: appbar,
       body: GestureDetector(
         onScaleStart: _handleScaleStart,
         onScaleUpdate: _handleScaleUpdate,
@@ -83,6 +86,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                 zoom: _zoom,
                 offset: _offset,
                 allCouples: allCouples,
+                statusBarHeight: statusBarHeight,
               ),
             ),
             Stack(
@@ -160,16 +164,18 @@ class IndividualCoupleUI extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         couple.member2 == null
             ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Container(
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.red),
-                      // ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
                       child: _singleMember(
                         couple.member1,
                       ),
@@ -178,13 +184,14 @@ class IndividualCoupleUI extends StatelessWidget {
                 ],
               )
             : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Container(
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.red),
-                      // ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
                       alignment: Alignment.centerRight,
                       margin: EdgeInsets.only(right: 4 * zoom),
                       child: _singleMember(
@@ -196,9 +203,9 @@ class IndividualCoupleUI extends StatelessWidget {
                   ),
                   Expanded(
                     child: Container(
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.red),
-                      // ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.red),
+                      ),
                       alignment: Alignment.topLeft,
                       margin: EdgeInsets.only(left: 4 * zoom),
                       child: _singleMember(
@@ -303,8 +310,10 @@ class MyTempPainter extends CustomPainter {
   final zoom;
   final offset;
   final allCouples;
+  final double statusBarHeight;
 
-  MyTempPainter({this.zoom, this.offset, this.allCouples});
+  MyTempPainter(
+      {this.statusBarHeight, this.zoom, this.offset, this.allCouples});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -313,8 +322,10 @@ class MyTempPainter extends CustomPainter {
     for (var couple in allCouples) {
       canvas.drawCircle(
         Offset(
-          ((center.dx + couple.x) * zoom),
-          (center.dy + couple.y) * zoom,
+          ((center.dx + couple.x) * zoom) + ((size.width / 2)),
+          ((center.dy + couple.y) * zoom) +
+              ((appbar.preferredSize.height)) -
+              ((statusBarHeight)),
         ),
         5,
         Paint()..color = Colors.black,

@@ -5,6 +5,7 @@ import 'package:family_tree_0/native_ui/firestore_functions/load_parents.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
+import 'background_canvas.dart';
 import 'firestore_functions/firestore_family_function.dart';
 
 List<CoupleModal> allCouples = [];
@@ -81,7 +82,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
           children: [
             CustomPaint(
               child: Container(),
-              painter: MyTempPainter(
+              painter: BackgroundLinesCanvas(
                 zoom: _zoom,
                 offset: _offset,
                 allCouples: allCouples,
@@ -213,9 +214,9 @@ class IndividualCoupleUI extends StatelessWidget {
             : Row(
                 children: [
                   Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                    ),
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(color: Colors.red),
+                    // ),
                     width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
                     child: _singleMember(
                       couple.member1.gender == 'm'
@@ -224,9 +225,9 @@ class IndividualCoupleUI extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                    ),
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(color: Colors.red),
+                    // ),
                     width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
                     child: _singleMember(
                       couple.member2.gender == 'f'
@@ -328,55 +329,5 @@ class IndividualCoupleUI extends StatelessWidget {
     await performLoadChildren(couple);
     setParentState();
     print('done');
-  }
-}
-
-class MyTempPainter extends CustomPainter {
-  final double zoom;
-  final Offset offset;
-  final List<CoupleModal> allCouples;
-
-  MyTempPainter({this.zoom, this.offset, this.allCouples});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final Offset center = size.center(Offset.zero) * zoom + offset;
-
-    for (var couple in allCouples) {
-      canvas.drawCircle(
-        Offset(
-          ((center.dx + couple.x) * zoom) +
-              ((MEMBER_CIRCLE_RADIUS + 50) * zoom),
-          ((center.dy + couple.y)) * zoom +
-              ((25 + (MEMBER_CIRCLE_RADIUS / 2)) * zoom),
-        ),
-        5,
-        Paint()..color = Colors.black,
-      );
-
-      canvas.drawLine(
-        Offset(
-          ((center.dx + couple.x) * zoom) +
-              ((MEMBER_CIRCLE_RADIUS + 50) * zoom),
-          ((center.dy + couple.y)) * zoom +
-              ((25 + 4 + MEMBER_CIRCLE_RADIUS / 2) * zoom),
-        ),
-        Offset(
-          ((center.dx + couple.x) * zoom) +
-              ((MEMBER_CIRCLE_RADIUS + 50) * zoom),
-          ((center.dy + couple.y)) * zoom +
-              ((25 + 4 + MEMBER_CIRCLE_RADIUS / 2) * zoom),
-        ),
-        Paint()
-          ..color = Colors.red
-          ..strokeWidth = 5,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    // TODO: implement shouldRepaint
-    return true;
   }
 }

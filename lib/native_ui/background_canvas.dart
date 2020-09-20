@@ -1,6 +1,6 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:ui' as ui;
 import '../size_consts.dart';
 
 class BackgroundLinesCanvas extends CustomPainter {
@@ -12,6 +12,7 @@ class BackgroundLinesCanvas extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint();
     final Offset center = size.center(Offset.zero) * zoom + offset;
 
     for (var couple in allCouples) {
@@ -23,8 +24,16 @@ class BackgroundLinesCanvas extends CustomPainter {
           centerOfCouple.dx,
           centerOfCouple.dy,
         ),
-        5,
-        Paint()..color = Colors.black,
+        3,
+        paint..color = Colors.black,
+      );
+
+      drawHorizontalLineBetweenMembers(
+        couple: couple,
+        canvas: canvas,
+        centerOfCouple: centerOfCouple,
+        zoom: zoom,
+        paint: paint,
       );
     }
   }
@@ -50,4 +59,37 @@ Offset getCoupleCenter(CoupleModal couple, double zoom, Offset center) {
         ((center.dx + couple.x) * zoom) + ((MEMBER_CIRCLE_RADIUS + 50) * zoom);
 
   return Offset(coupleX, coupleY);
+}
+
+void drawHorizontalLineBetweenMembers({
+  @required CoupleModal couple,
+  @required Offset centerOfCouple,
+  @required double zoom,
+  @required Canvas canvas,
+  @required Paint paint,
+}) {
+  if (couple.member2 == null) return;
+
+  double extraOffsetOnBothSides = ((MEMBER_CIRCLE_RADIUS + 50) / 2 * zoom);
+
+  Offset startPos = Offset(
+    centerOfCouple.dx - extraOffsetOnBothSides,
+    centerOfCouple.dy,
+  );
+
+  Offset endPos = Offset(
+    centerOfCouple.dx + extraOffsetOnBothSides,
+    centerOfCouple.dy,
+  );
+  paint
+    ..strokeWidth = 4
+    ..shader = ui.Gradient.linear(
+      startPos,
+      endPos,
+      [
+        Colors.blue,
+        Colors.red,
+      ],
+    );
+  canvas.drawLine(startPos, endPos, paint);
 }

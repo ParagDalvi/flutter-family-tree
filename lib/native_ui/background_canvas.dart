@@ -1,4 +1,6 @@
 import 'package:family_tree_0/modal/couple_modal.dart';
+import 'package:family_tree_0/modal/single_member_modal.dart';
+import 'package:family_tree_0/native_ui/native_family_tree.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import '../size_consts.dart';
@@ -35,6 +37,15 @@ class BackgroundLinesCanvas extends CustomPainter {
         zoom: zoom,
         paint: paint,
       );
+
+      drawLinesToChildren(
+        canvas: canvas,
+        center: center,
+        centerofParentCouple: centerOfCouple,
+        paint: paint,
+        parentCouple: couple,
+        zoom: zoom,
+      );
     }
   }
 
@@ -45,7 +56,11 @@ class BackgroundLinesCanvas extends CustomPainter {
   }
 }
 
-Offset getCoupleCenter(CoupleModal couple, double zoom, Offset center) {
+Offset getCoupleCenter(
+  CoupleModal couple,
+  double zoom,
+  Offset center,
+) {
   double coupleX, coupleY;
 
   coupleY = ((center.dy + couple.y)) * zoom +
@@ -87,9 +102,91 @@ void drawHorizontalLineBetweenMembers({
       startPos,
       endPos,
       [
-        Colors.blue,
-        Colors.red,
+        Colors.blue.withOpacity(0.4),
+        Colors.red.withOpacity(0.4),
       ],
     );
   canvas.drawLine(startPos, endPos, paint);
+}
+
+void drawLinesToChildren({
+  @required CoupleModal parentCouple,
+  @required Offset centerofParentCouple,
+  @required double zoom,
+  @required Offset center,
+  @required Canvas canvas,
+  @required Paint paint,
+}) {
+  if (!parentCouple.areChildrenLoaded || parentCouple.children.length == 0)
+    return;
+
+  for (var i = 0; i < parentCouple.children.length; i++) {
+    String childId = parentCouple.children[i];
+
+    CoupleModal childCouple = allCouples.firstWhere(
+      (cup) => cup.member1.id == childId || cup.member2?.id == childId,
+    );
+
+    Offset centerOfChildCouple = getCoupleCenter(childCouple, zoom, center);
+
+    if (childCouple.member2 == null) {
+      paint
+        ..strokeWidth = 4
+        ..shader = ui.Gradient.linear(
+          centerofParentCouple,
+          centerOfChildCouple,
+          [
+            Colors.pink.withOpacity(0.4),
+            childCouple.member1.gender == 'm'
+                ? Colors.blue.withOpacity(0.4)
+                : Colors.red.withOpacity(0.4),
+          ],
+        );
+
+      canvas.drawLine(
+        centerofParentCouple,
+        centerOfChildCouple,
+        paint,
+      );
+    } else {
+      double extraOffsetOnBothSides = ((MEMBER_CIRCLE_RADIUS + 50) / 2 * zoom);
+      double childEndX;
+
+      SingleMemberModal member = childCouple.member1.id == childId
+          ? childCouple.member1
+          : childCouple.member2;
+
+      if (member.gender == 'm') {
+        childEndX = centerOfChildCouple.dx - extraOffsetOnBothSides;
+        paint
+          ..strokeWidth = 4
+          ..shader = ui.Gradient.linear(
+            centerofParentCouple,
+            Offset(childEndX, centerOfChildCouple.dy),
+            [
+              Colors.pink.withOpacity(0.4),
+              Colors.blue.withOpacity(0.4),
+            ],
+          );
+      } else {
+        childEndX = centerOfChildCouple.dx + extraOffsetOnBothSides;
+        paint
+          ..strokeWidth = 4
+          ..shader = ui.Gradient.linear(
+            centerofParentCouple,
+            Offset(childEndX, centerOfChildCouple.dy),
+            [
+              Colors.pink.withOpacity(0.4),
+              Colors.red.withOpacity(0.4),
+            ],
+          );
+      }
+
+      canvas.drawLine(
+        centerofParentCouple,
+        Offset(childEndX, centerOfChildCouple.dy),
+        paint,
+      );
+    }
+  }
 }

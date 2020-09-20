@@ -34,11 +34,13 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   }
 
   void init() async {
-    allCouples.add(await getCoupleFromFirestore(
-      id: '0',
-      x: 0,
-      y: 0,
-    ));
+    allCouples.add(
+      await getCoupleFromFirestore(
+        id: '2',
+        x: 0,
+        y: 0,
+      ),
+    );
     setState(() {});
     print('added');
   }

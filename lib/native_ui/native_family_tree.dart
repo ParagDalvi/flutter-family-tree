@@ -100,6 +100,17 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
             Align(
               alignment: Alignment.topCenter,
               child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 10,
+                      color: Colors.grey,
+                      offset: Offset(0, 1),
+                      spreadRadius: 1,
+                    ),
+                  ],
+                  color: Colors.orange,
+                ),
                 child: Padding(
                   padding: EdgeInsets.only(
                     top: MediaQuery.of(context).padding.top,
@@ -118,7 +129,6 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                 ),
                 width: double.infinity,
                 height: 56 + MediaQuery.of(context).padding.top,
-                color: Colors.orange,
               ),
             ),
           ],
@@ -192,16 +202,6 @@ class IndividualCoupleUI extends StatelessWidget {
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Expanded(
-                  //   child: Container(
-                  //     // decoration: BoxDecoration(
-                  //     //   border: Border.all(color: Colors.red),
-                  //     // ),
-                  //     child: _singleMember(
-                  //       couple.member1,
-                  //     ),
-                  //   ),
-                  // ),
                   Container(
                     width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
                     child: _singleMember(
@@ -212,34 +212,6 @@ class IndividualCoupleUI extends StatelessWidget {
               )
             : Row(
                 children: [
-                  // Expanded(
-                  //   child: Container(
-                  //     // decoration: BoxDecoration(
-                  //     //   border: Border.all(color: Colors.red),
-                  //     // ),
-                  //     alignment: Alignment.centerRight,
-                  //     margin: EdgeInsets.only(right: 4 * zoom),
-                  //     child: _singleMember(
-                  //       couple.member1.gender == 'm'
-                  //           ? couple.member1
-                  //           : couple.member2,
-                  //     ),
-                  //   ),
-                  // ),
-                  // Expanded(
-                  //   child: Container(
-                  //     // decoration: BoxDecoration(
-                  //     //   border: Border.all(color: Colors.red),
-                  //     // ),
-                  //     alignment: Alignment.topLeft,
-                  //     margin: EdgeInsets.only(left: 4 * zoom),
-                  //     child: _singleMember(
-                  //       couple.member2.gender == 'f'
-                  //           ? couple.member2
-                  //           : couple.member1,
-                  //     ),
-                  //   ),
-                  // ),
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.red),
@@ -378,7 +350,7 @@ class MyTempPainter extends CustomPainter {
           ((center.dy + couple.y)) * zoom +
               ((25 + (MEMBER_CIRCLE_RADIUS / 2)) * zoom),
         ),
-        1,
+        5,
         Paint()..color = Colors.black,
       );
 

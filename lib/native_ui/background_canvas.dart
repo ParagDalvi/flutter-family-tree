@@ -38,7 +38,16 @@ class BackgroundLinesCanvas extends CustomPainter {
         paint: paint,
       );
 
-      drawLinesToChildren(
+      // drawLinesToChildren(
+      //   canvas: canvas,
+      //   center: center,
+      //   centerofParentCouple: centerOfCouple,
+      //   paint: paint,
+      //   parentCouple: couple,
+      //   zoom: zoom,
+      // );
+
+      drawClassicLinesToChildren(
         canvas: canvas,
         center: center,
         centerofParentCouple: centerOfCouple,
@@ -188,5 +197,86 @@ void drawLinesToChildren({
         paint,
       );
     }
+  }
+}
+
+void drawClassicLinesToChildren({
+  @required CoupleModal parentCouple,
+  @required Offset centerofParentCouple,
+  @required double zoom,
+  @required Offset center,
+  @required Canvas canvas,
+  @required Paint paint,
+}) {
+  if (!parentCouple.areChildrenLoaded || parentCouple.children.length == 0)
+    return;
+
+  for (var i = 0; i < parentCouple.children.length; i++) {
+    String childId = parentCouple.children[i];
+
+    CoupleModal childCouple = allCouples.firstWhere(
+      (cup) => cup.member1.id == childId || cup.member2?.id == childId,
+    );
+
+    Offset centerOfChildCouple = getCoupleCenter(childCouple, zoom, center);
+
+    Path path = Path();
+
+    path.moveTo(
+      centerofParentCouple.dx,
+      centerofParentCouple.dy,
+    );
+
+    //down line (vertical)
+    path.lineTo(
+      centerofParentCouple.dx,
+      centerofParentCouple.dy + (COUPLE_VERTICAL_GAP / 2 * zoom),
+    );
+
+    if (childCouple.member2 == null) {
+      //line to children (horizontal)
+      path.lineTo(
+        centerOfChildCouple.dx,
+        centerofParentCouple.dy + (COUPLE_VERTICAL_GAP / 2 * zoom),
+      );
+
+      //final line to connect
+      path.lineTo(
+        centerOfChildCouple.dx,
+        centerOfChildCouple.dy,
+      );
+    } else {
+      double extraOffsetOnBothSides = ((MEMBER_CIRCLE_RADIUS + 50) / 2 * zoom);
+      double childEndX;
+
+      SingleMemberModal member = childCouple.member1.id == childId
+          ? childCouple.member1
+          : childCouple.member2;
+
+      if (member.gender == 'm') {
+        childEndX = centerOfChildCouple.dx - extraOffsetOnBothSides;
+      } else {
+        childEndX = centerOfChildCouple.dx + extraOffsetOnBothSides;
+      }
+
+      //line to children (horizontal)
+      path.lineTo(
+        childEndX,
+        centerofParentCouple.dy + (COUPLE_VERTICAL_GAP / 2 * zoom),
+      );
+
+      //final line to connect
+      path.lineTo(
+        childEndX,
+        centerOfChildCouple.dy,
+      );
+    }
+
+    canvas.drawPath(
+      path,
+      paint
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round,
+    );
   }
 }

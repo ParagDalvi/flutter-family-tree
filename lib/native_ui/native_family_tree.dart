@@ -243,6 +243,7 @@ class IndividualCoupleUI extends StatelessWidget {
           height: 8 * zoom,
         ),
         _getChildrenButton(couple, zoom),
+        Text('${couple.x}, ${couple.y}'),
       ],
     );
   }
@@ -321,7 +322,10 @@ class IndividualCoupleUI extends StatelessWidget {
 
   void loadParents(CoupleModal couple, String gender) async {
     print('load parents clicked');
-    await performLoadParents(selectedCouple: couple, gender: gender);
+    await performLoadParents(
+      selectedCouple: couple,
+      gender: gender,
+    );
     setParentState();
     print('dome');
   }

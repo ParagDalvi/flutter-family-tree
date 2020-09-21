@@ -234,6 +234,19 @@ void drawClassicLinesToChildren({
     );
 
     if (childCouple.member2 == null) {
+      paint
+        ..strokeWidth = 4
+        ..shader = ui.Gradient.linear(
+          centerofParentCouple,
+          centerOfChildCouple,
+          [
+            Colors.pink.withOpacity(0.4),
+            childCouple.member1.gender == 'm'
+                ? Colors.blue.withOpacity(0.4)
+                : Colors.red.withOpacity(0.4),
+          ],
+        );
+
       //line to children (horizontal)
       path.lineTo(
         centerOfChildCouple.dx,
@@ -255,8 +268,28 @@ void drawClassicLinesToChildren({
 
       if (member.gender == 'm') {
         childEndX = centerOfChildCouple.dx - extraOffsetOnBothSides;
+        paint
+          ..strokeWidth = 4
+          ..shader = ui.Gradient.linear(
+            centerofParentCouple,
+            Offset(childEndX, centerOfChildCouple.dy),
+            [
+              Colors.pink.withOpacity(0.4),
+              Colors.blue.withOpacity(0.4),
+            ],
+          );
       } else {
         childEndX = centerOfChildCouple.dx + extraOffsetOnBothSides;
+        paint
+          ..strokeWidth = 4
+          ..shader = ui.Gradient.linear(
+            centerofParentCouple,
+            Offset(childEndX, centerOfChildCouple.dy),
+            [
+              Colors.pink.withOpacity(0.4),
+              Colors.red.withOpacity(0.4),
+            ],
+          );
       }
 
       //line to children (horizontal)

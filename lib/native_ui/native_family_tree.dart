@@ -1,7 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/native_ui/firestore_functions/load_children.dart';
 import 'package:family_tree_0/native_ui/firestore_functions/load_parents.dart';
+import 'package:family_tree_0/native_ui/member_details.dart';
 import 'package:family_tree_0/size_consts.dart';
 import 'package:flutter/material.dart';
 
@@ -209,6 +211,7 @@ class IndividualCoupleUI extends StatelessWidget {
                     width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
                     child: _singleMember(
                       couple.member1,
+                      context,
                     ),
                   ),
                 ],
@@ -224,6 +227,7 @@ class IndividualCoupleUI extends StatelessWidget {
                       couple.member1.gender == 'm'
                           ? couple.member1
                           : couple.member2,
+                      context,
                     ),
                   ),
                   Container(
@@ -235,6 +239,7 @@ class IndividualCoupleUI extends StatelessWidget {
                       couple.member2.gender == 'f'
                           ? couple.member2
                           : couple.member1,
+                      context,
                     ),
                   ),
                 ],
@@ -248,11 +253,11 @@ class IndividualCoupleUI extends StatelessWidget {
     );
   }
 
-  Widget _singleMember(SingleMemberModal member) {
+  Widget _singleMember(SingleMemberModal member, BuildContext context) {
     return Column(
       children: [
         _getParentsButton(member),
-        _getImageOfMember(member),
+        _getImageOfMember(member, context),
         _getNameOfMember(member),
       ],
     );
@@ -272,23 +277,40 @@ class IndividualCoupleUI extends StatelessWidget {
     );
   }
 
-  Widget _getImageOfMember(SingleMemberModal member) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: member.gender == 'm' ? Colors.blue : Colors.pink,
-          width: 4 * zoom,
-        ),
-        shape: BoxShape.circle,
-        color: Colors.orange,
-        image: DecorationImage(
-          image: NetworkImage(
-            "https://i.pravatar.cc/150?u=${member.name}",
+  Widget _getImageOfMember(SingleMemberModal member, BuildContext context) {
+    return GestureDetector(
+      onTap: () => _performMemberClick(member, context),
+      child: Hero(
+        tag: member.id,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: member.gender == 'm' ? Colors.blue : Colors.pink,
+              width: 3 * zoom,
+            ),
+            borderRadius: BorderRadius.all(
+              Radius.circular(15 * zoom),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0, 8),
+                blurRadius: 10,
+                spreadRadius: 1,
+              ),
+            ],
+            // shape: BoxShape.circle,
+            color: Colors.orange,
+            image: DecorationImage(
+              image: CachedNetworkImageProvider(
+                "https://i.pravatar.cc/150?u=${member.name}",
+              ),
+            ),
           ),
+          width: MEMBER_CIRCLE_RADIUS * zoom,
+          height: (MEMBER_CIRCLE_RADIUS + 10) * zoom,
         ),
       ),
-      width: MEMBER_CIRCLE_RADIUS * zoom,
-      height: MEMBER_CIRCLE_RADIUS * zoom,
     );
   }
 
@@ -335,5 +357,25 @@ class IndividualCoupleUI extends StatelessWidget {
     await performLoadChildren(couple);
     setParentState();
     print('done');
+  }
+
+  void _performMemberClick(SingleMemberModal member, BuildContext ctx) {
+    Navigator.push(
+      ctx,
+      MaterialPageRoute(
+        builder: (c) => MemberDetails(
+          member: member,
+        ),
+      ),
+    );
+
+    // showBottomSheet(
+    //   context: ctx,
+    //   builder: (BuildContext context) {
+    //     return Container(
+    //       child: Text('la'),
+    //     );
+    //   },
+    // );
   }
 }

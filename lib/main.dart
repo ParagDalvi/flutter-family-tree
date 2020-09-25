@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:family_tree_0/family_tree.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'native_ui/native_family_tree.dart';
 
 final firestoreInstance = FirebaseFirestore.instance;
+
+Color darkBlueColor = Color(0xff309abb);
+Color lightBlueColor = Color(0xff8ed0e2);
+Color blackDarkColor = Color(0xff1c1c1c);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +26,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      // home: MyHomePage(),
-      // home: FamilyTree(),
       home: NavtiveFamilyTree(),
     );
   }

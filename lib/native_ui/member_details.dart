@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_tree_0/main.dart';
+import 'package:family_tree_0/modal/member_details_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:flutter/material.dart';
 
@@ -177,7 +178,7 @@ class _MainContentState extends State<MainContent>
             indicatorColor: lightBlueColor,
             controller: _tabController,
             labelColor: darkBlueColor,
-            unselectedLabelColor: Colors.black,
+            unselectedLabelColor: blackDarkColor,
             isScrollable: true,
             tabs: [
               Text(
@@ -241,7 +242,28 @@ class PersonalDetails extends StatelessWidget {
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (!snapshot.hasData) return Text('loading');
 
-        return Text(snapshot.data.data().toString());
+        MemberDetailsModal memberDetails = MemberDetailsModal.fronJson(
+          snapshot.data.data(),
+          member.gender,
+        );
+
+        return ListView(
+          children: [
+            Text(memberDetails.address + 'ja'),
+            Text(memberDetails.anniversery.toString()),
+            Text(memberDetails.bday.toString()),
+            Text(memberDetails.contact),
+            Text(memberDetails.email),
+            Text(memberDetails.gender),
+            Text(memberDetails.personalLinks.facebook),
+            Text(memberDetails.personalLinks.instagram),
+            Text(memberDetails.personalLinks.linkedin),
+            Text(memberDetails.personalLinks.twitter),
+            Text(memberDetails.personalLinks.website),
+            Text(memberDetails.personalLinks.whatsapp),
+            Text(memberDetails.whatsapp),
+          ],
+        );
       },
     );
   }

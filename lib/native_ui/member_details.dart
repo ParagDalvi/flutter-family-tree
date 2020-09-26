@@ -4,9 +4,11 @@ import 'package:family_tree_0/main.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/member_details_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
+import 'package:family_tree_0/native_ui/firestore_functions/firestore_family_function.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MemberDetails extends StatelessWidget {
   final SingleMemberModal member;
@@ -247,7 +249,9 @@ class _MainContentState extends State<MainContent>
             child: TabBarView(
               controller: _tabController,
               children: [
-                Icon(Icons.directions_car),
+                ParentsDetails(
+                  parentsId: widget.member.parents,
+                ),
                 PersonalDetails(member: widget.member),
                 Icon(Icons.directions_transit),
                 Icon(Icons.perm_media),
@@ -352,44 +356,81 @@ class _PersonalDetailsState extends State<PersonalDetails>
         children: [
           details.personalLinks.website != null ||
                   details.personalLinks.website != ''
-              ? FaIcon(
-                  FontAwesomeIcons.rss,
-                  color: Colors.orange,
-                )
+              ? IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.rss,
+                    color: Colors.orange,
+                  ),
+                  onPressed: () async {
+                    if (await canLaunch(details.personalLinks.website)) {
+                      await launch(details.personalLinks.website);
+                    }
+                  })
               : SizedBox.shrink(),
           details.personalLinks.instagram != null ||
                   details.personalLinks.instagram != ''
-              ? FaIcon(
-                  FontAwesomeIcons.instagram,
-                  color: Colors.pink,
-                )
+              ? IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.instagram,
+                    color: Colors.pink,
+                  ),
+                  onPressed: () async {
+                    if (await canLaunch(details.personalLinks.instagram)) {
+                      await launch(details.personalLinks.instagram);
+                    }
+                  })
               : SizedBox.shrink(),
           details.personalLinks.facebook != null ||
                   details.personalLinks.facebook != ''
-              ? FaIcon(
-                  FontAwesomeIcons.facebook,
-                  color: Colors.blue,
-                )
+              ? IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.facebook,
+                    color: Colors.blue,
+                  ),
+                  onPressed: () async {
+                    if (await canLaunch(details.personalLinks.facebook)) {
+                      await launch(details.personalLinks.facebook);
+                    }
+                  })
               : SizedBox.shrink(),
           details.personalLinks.whatsapp != null ||
                   details.personalLinks.whatsapp != ''
-              ? FaIcon(
-                  FontAwesomeIcons.whatsapp,
-                  color: Colors.green,
-                )
+              ? IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.whatsapp,
+                    color: Colors.green,
+                  ),
+                  onPressed: () async {
+                    if (await canLaunch(details.personalLinks.whatsapp)) {
+                      await launch(details.personalLinks.whatsapp);
+                    }
+                  })
               : SizedBox.shrink(),
           details.personalLinks.linkedin != null ||
                   details.personalLinks.linkedin != ''
-              ? FaIcon(
-                  FontAwesomeIcons.linkedinIn,
-                  color: Colors.lightBlue,
-                )
+              ? IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.linkedinIn,
+                    color: Colors.lightBlue,
+                  ),
+                  onPressed: () async {
+                    if (await canLaunch(details.personalLinks.linkedin)) {
+                      await launch(details.personalLinks.linkedin);
+                    }
+                  })
               : SizedBox.shrink(),
           details.personalLinks.twitter != null ||
                   details.personalLinks.twitter != ''
-              ? FaIcon(
-                  FontAwesomeIcons.twitter,
-                  color: Colors.lightBlueAccent,
+              ? IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.twitter,
+                    color: Colors.lightBlueAccent,
+                  ),
+                  onPressed: () async {
+                    if (await canLaunch(details.personalLinks.twitter)) {
+                      await launch(details.personalLinks.twitter);
+                    }
+                  },
                 )
               : SizedBox.shrink(),
         ],
@@ -420,6 +461,106 @@ class _PersonalDetailsState extends State<PersonalDetails>
         icon,
         color: darkBlueColor,
       ),
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class ParentsDetails extends StatefulWidget {
+  final List parentsId;
+
+  const ParentsDetails({
+    @required this.parentsId,
+  });
+
+  @override
+  _ParentsDetailsState createState() => _ParentsDetailsState();
+}
+
+class _ParentsDetailsState extends State<ParentsDetails>
+    with AutomaticKeepAliveClientMixin {
+  Future<CoupleModal> parentCouple;
+
+  @override
+  void initState() {
+    parentCouple = loadParents();
+    super.initState();
+  }
+
+  Future<CoupleModal> loadParents() {
+    Future<CoupleModal> couple =
+        getCoupleFromFirestore(id: widget.parentsId[0], x: null, y: null);
+    return couple;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+
+    if (widget.parentsId.length == 0) return Text('mothing');
+
+    return FutureBuilder(
+      future: parentCouple,
+      builder: (BuildContext context, AsyncSnapshot<CoupleModal> coupleAsy) {
+        if (!coupleAsy.hasData)
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+
+        CoupleModal couple = coupleAsy.data;
+
+        SingleMemberModal father =
+            couple.member1.gender == 'm' ? couple.member1 : couple.member2;
+        SingleMemberModal mother =
+            couple.member1.gender == 'f' ? couple.member1 : couple.member2;
+        return ListView(
+          children: [
+            ListTile(
+              leading: CircleAvatar(
+                backgroundImage: CachedNetworkImageProvider(
+                  "https://i.pravatar.cc/150?u=${father.name}",
+                ),
+              ),
+              title: Text(
+                'FATHER',
+                style: Theme.of(context).textTheme.subtitle1.copyWith(
+                      color: Colors.grey,
+                    ),
+              ),
+              subtitle: Text(
+                father.name,
+                style: Theme.of(context).textTheme.headline6.copyWith(
+                      color: blackDarkColor,
+                    ),
+              ),
+            ),
+            couple.member2 != null
+                ? ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: CachedNetworkImageProvider(
+                        "https://i.pravatar.cc/150?u=${mother.name}",
+                      ),
+                    ),
+                    title: Text(
+                      'MOTHER',
+                      style: Theme.of(context).textTheme.subtitle1.copyWith(
+                            color: Colors.grey,
+                          ),
+                    ),
+                    subtitle: Text(
+                      mother.name,
+                      style: Theme.of(context).textTheme.headline6.copyWith(
+                            color: blackDarkColor,
+                          ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+            Text('loa')
+          ],
+        );
+      },
     );
   }
 

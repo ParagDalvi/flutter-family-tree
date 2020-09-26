@@ -1,15 +1,20 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:family_tree_0/main.dart';
+import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/member_details_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 class MemberDetails extends StatelessWidget {
   final SingleMemberModal member;
+  final CoupleModal couple;
 
   const MemberDetails({
     @required this.member,
+    @required this.couple,
   });
 
   @override
@@ -31,6 +36,7 @@ class MemberDetails extends StatelessWidget {
             ),
             child: MainContent(
               member: member,
+              couple: couple,
             ),
           ),
           Row(
@@ -123,9 +129,11 @@ class MemberDetails extends StatelessWidget {
 
 class MainContent extends StatefulWidget {
   final SingleMemberModal member;
+  final CoupleModal couple;
 
   const MainContent({
     @required this.member,
+    @required this.couple,
   });
 
   @override
@@ -136,6 +144,8 @@ class _MainContentState extends State<MainContent>
     with TickerProviderStateMixin {
   TabController _tabController;
 
+  SingleMemberModal spouse;
+
   @override
   void initState() {
     _tabController = TabController(
@@ -143,7 +153,18 @@ class _MainContentState extends State<MainContent>
       length: 4,
       initialIndex: 1,
     );
+
+    spouse = widget.couple.member1 == widget.member
+        ? widget.couple.member2
+        : widget.couple.member1;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -174,6 +195,21 @@ class _MainContentState extends State<MainContent>
           SizedBox(
             height: 20,
           ),
+          widget.couple?.member2 != null
+              ? ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                      'https://i.pravatar.cc/150?u=${spouse.name}',
+                    ),
+                  ),
+                  title: Text(spouse.name),
+                  subtitle:
+                      spouse.gender == 'm' ? Text('Husband') : Text('Wife'),
+                  trailing: spouse.gender == 'm'
+                      ? FaIcon(FontAwesomeIcons.male)
+                      : FaIcon(FontAwesomeIcons.female),
+                )
+              : SizedBox.shrink(),
           TabBar(
             indicatorColor: lightBlueColor,
             controller: _tabController,
@@ -182,25 +218,25 @@ class _MainContentState extends State<MainContent>
             isScrollable: true,
             tabs: [
               Text(
-                'Parents',
+                'PARENTS',
                 style: TextStyle(
                   fontSize: 18,
                 ),
               ),
               Text(
-                'Personal',
+                'PERSONAL',
                 style: TextStyle(
                   fontSize: 18,
                 ),
               ),
               Text(
-                'Children',
+                'CHILDREN',
                 style: TextStyle(
                   fontSize: 18,
                 ),
               ),
               Text(
-                'Media',
+                'MEDIA',
                 style: TextStyle(
                   fontSize: 18,
                 ),
@@ -224,7 +260,7 @@ class _MainContentState extends State<MainContent>
   }
 }
 
-class PersonalDetails extends StatelessWidget {
+class PersonalDetails extends StatefulWidget {
   final SingleMemberModal member;
 
   const PersonalDetails({
@@ -232,39 +268,161 @@ class PersonalDetails extends StatelessWidget {
   });
 
   @override
+  _PersonalDetailsState createState() => _PersonalDetailsState();
+}
+
+class _PersonalDetailsState extends State<PersonalDetails>
+    with AutomaticKeepAliveClientMixin<PersonalDetails> {
+  Future<DocumentSnapshot> personalDataDoc;
+
+  @override
+  void initState() {
+    personalDataDoc = loadDoc();
+    super.initState();
+  }
+
+  Future<DocumentSnapshot> loadDoc() async {
+    DocumentSnapshot doc = await firestoreInstance
+        .collection('alpha_test_details')
+        .doc(widget.member.id)
+        .get();
+
+    return doc;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context); //need this line
     return FutureBuilder(
-      future: firestoreInstance
-          .collection('alpha_test_details')
-          .doc(member.id)
-          .get(),
+      future: personalDataDoc,
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (!snapshot.hasData) return Text('loading');
+        if (!snapshot.hasData)
+          return Center(
+            child: CircularProgressIndicator(),
+          );
 
         MemberDetailsModal memberDetails = MemberDetailsModal.fronJson(
           snapshot.data.data(),
-          member.gender,
+          widget.member.gender,
+        );
+
+        String birthday = DateFormat.yMMMd().format(
+          memberDetails.bday.toDate(),
         );
 
         return ListView(
           children: [
-            Text(memberDetails.address + 'ja'),
-            Text(memberDetails.anniversery.toString()),
-            Text(memberDetails.bday.toString()),
-            Text(memberDetails.contact),
-            Text(memberDetails.email),
-            Text(memberDetails.gender),
-            Text(memberDetails.personalLinks.facebook),
-            Text(memberDetails.personalLinks.instagram),
-            Text(memberDetails.personalLinks.linkedin),
-            Text(memberDetails.personalLinks.twitter),
-            Text(memberDetails.personalLinks.website),
-            Text(memberDetails.personalLinks.whatsapp),
-            Text(memberDetails.whatsapp),
+            _getFieldListTile(
+              'BIRTHDAY',
+              birthday,
+              context,
+              FontAwesomeIcons.birthdayCake,
+            ),
+            _getFieldListTile(
+              'EMAIL',
+              memberDetails.email,
+              context,
+              FontAwesomeIcons.envelope,
+            ),
+            _getFieldListTile(
+              'CONTACT NUMBER',
+              memberDetails.contact,
+              context,
+              FontAwesomeIcons.phone,
+            ),
+            _getFieldListTile(
+              'WHATSAPP NUMBER',
+              memberDetails.whatsapp,
+              context,
+              FontAwesomeIcons.whatsapp,
+            ),
+            _getPersonalLinks(memberDetails),
           ],
         );
       },
     );
   }
+
+  _getPersonalLinks(MemberDetailsModal details) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          details.personalLinks.website != null ||
+                  details.personalLinks.website != ''
+              ? FaIcon(
+                  FontAwesomeIcons.rss,
+                  color: Colors.orange,
+                )
+              : SizedBox.shrink(),
+          details.personalLinks.instagram != null ||
+                  details.personalLinks.instagram != ''
+              ? FaIcon(
+                  FontAwesomeIcons.instagram,
+                  color: Colors.pink,
+                )
+              : SizedBox.shrink(),
+          details.personalLinks.facebook != null ||
+                  details.personalLinks.facebook != ''
+              ? FaIcon(
+                  FontAwesomeIcons.facebook,
+                  color: Colors.blue,
+                )
+              : SizedBox.shrink(),
+          details.personalLinks.whatsapp != null ||
+                  details.personalLinks.whatsapp != ''
+              ? FaIcon(
+                  FontAwesomeIcons.whatsapp,
+                  color: Colors.green,
+                )
+              : SizedBox.shrink(),
+          details.personalLinks.linkedin != null ||
+                  details.personalLinks.linkedin != ''
+              ? FaIcon(
+                  FontAwesomeIcons.linkedinIn,
+                  color: Colors.lightBlue,
+                )
+              : SizedBox.shrink(),
+          details.personalLinks.twitter != null ||
+                  details.personalLinks.twitter != ''
+              ? FaIcon(
+                  FontAwesomeIcons.twitter,
+                  color: Colors.lightBlueAccent,
+                )
+              : SizedBox.shrink(),
+        ],
+      ),
+    );
+  }
+
+  Widget _getFieldListTile(
+    String title,
+    String value,
+    BuildContext context,
+    IconData icon,
+  ) {
+    return ListTile(
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.subtitle1.copyWith(
+              color: Colors.grey,
+            ),
+      ),
+      subtitle: Text(
+        value,
+        style: Theme.of(context).textTheme.headline6.copyWith(
+              color: blackDarkColor,
+            ),
+      ),
+      trailing: FaIcon(
+        icon,
+        color: darkBlueColor,
+      ),
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:family_tree_0/main.dart';
 import 'package:family_tree_0/modal/couple_modal.dart';
 import 'package:family_tree_0/modal/single_member_modal.dart';
 import 'package:family_tree_0/native_ui/firestore_functions/load_children.dart';
@@ -11,9 +12,6 @@ import 'background_canvas.dart';
 import 'firestore_functions/firestore_family_function.dart';
 
 List<CoupleModal> allCouples = [];
-AppBar appbar = AppBar(
-  title: Text('Family Tree'),
-);
 
 class NavtiveFamilyTree extends StatefulWidget {
   @override
@@ -78,7 +76,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(onPressed: _handleScaleReset),
-      // appBar: appbar,
+      backgroundColor: notWhiteColor,
       body: GestureDetector(
         onScaleStart: _handleScaleStart,
         onScaleUpdate: _handleScaleUpdate,
@@ -114,7 +112,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
                       spreadRadius: 1,
                     ),
                   ],
-                  color: Colors.orange,
+                  color: darkBlueColor,
                 ),
                 child: Padding(
                   padding: EdgeInsets.only(
@@ -365,6 +363,7 @@ class IndividualCoupleUI extends StatelessWidget {
       MaterialPageRoute(
         builder: (c) => MemberDetails(
           member: member,
+          couple: couple,
         ),
       ),
     );

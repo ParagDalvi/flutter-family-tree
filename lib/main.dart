@@ -9,6 +9,7 @@ final firestoreInstance = FirebaseFirestore.instance;
 Color darkBlueColor = Color(0xff309abb);
 Color lightBlueColor = Color(0xff8ed0e2);
 Color blackDarkColor = Color(0xff1c1c1c);
+Color notWhiteColor = Color(0xffe1e8f2);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.orange,
+        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: NavtiveFamilyTree(),

@@ -146,19 +146,14 @@ class _MainContentState extends State<MainContent>
     with TickerProviderStateMixin {
   TabController _tabController;
 
-  SingleMemberModal spouse;
-
   @override
   void initState() {
     _tabController = TabController(
       vsync: this,
-      length: 4,
+      length: 5,
       initialIndex: 1,
     );
 
-    spouse = widget.couple.member1 == widget.member
-        ? widget.couple.member2
-        : widget.couple.member1;
     super.initState();
   }
 
@@ -197,21 +192,6 @@ class _MainContentState extends State<MainContent>
           SizedBox(
             height: 20,
           ),
-          widget.couple?.member2 != null
-              ? ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                      'https://i.pravatar.cc/150?u=${spouse.name}',
-                    ),
-                  ),
-                  title: Text(spouse.name),
-                  subtitle:
-                      spouse.gender == 'm' ? Text('Husband') : Text('Wife'),
-                  trailing: spouse.gender == 'm'
-                      ? FaIcon(FontAwesomeIcons.male)
-                      : FaIcon(FontAwesomeIcons.female),
-                )
-              : SizedBox.shrink(),
           TabBar(
             indicatorColor: lightBlueColor,
             controller: _tabController,
@@ -227,6 +207,12 @@ class _MainContentState extends State<MainContent>
               ),
               Text(
                 'PERSONAL',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              Text(
+                'SPOUSE',
                 style: TextStyle(
                   fontSize: 18,
                 ),
@@ -252,7 +238,13 @@ class _MainContentState extends State<MainContent>
                 ParentsDetails(
                   parentsId: widget.member.parents,
                 ),
-                PersonalDetails(member: widget.member),
+                PersonalDetails(
+                  member: widget.member,
+                ),
+                RelationDetails(
+                  couple: widget.couple,
+                  member: widget.member,
+                ),
                 Icon(Icons.directions_transit),
                 Icon(Icons.perm_media),
               ],
@@ -268,7 +260,7 @@ class PersonalDetails extends StatefulWidget {
   final SingleMemberModal member;
 
   const PersonalDetails({
-    this.member,
+    @required this.member,
   });
 
   @override
@@ -282,6 +274,7 @@ class _PersonalDetailsState extends State<PersonalDetails>
   @override
   void initState() {
     personalDataDoc = loadDoc();
+
     super.initState();
   }
 
@@ -485,7 +478,7 @@ class _ParentsDetailsState extends State<ParentsDetails>
 
   @override
   void initState() {
-    parentCouple = loadParents();
+    if (widget.parentsId.length != 0) parentCouple = loadParents();
     super.initState();
   }
 
@@ -499,7 +492,41 @@ class _ParentsDetailsState extends State<ParentsDetails>
   Widget build(BuildContext context) {
     super.build(context);
 
-    if (widget.parentsId.length == 0) return Text('mothing');
+    if (widget.parentsId.length == 0)
+      return Column(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            height: 80,
+            child: RaisedButton(
+              color: darkBlueColor,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'ADD',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  )
+                ],
+              ),
+              onPressed: () {},
+            ),
+          ),
+        ],
+      );
 
     return FutureBuilder(
       future: parentCouple,
@@ -515,55 +542,177 @@ class _ParentsDetailsState extends State<ParentsDetails>
             couple.member1.gender == 'm' ? couple.member1 : couple.member2;
         SingleMemberModal mother =
             couple.member1.gender == 'f' ? couple.member1 : couple.member2;
-        return ListView(
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            ListTile(
-              leading: CircleAvatar(
-                backgroundImage: CachedNetworkImageProvider(
-                  "https://i.pravatar.cc/150?u=${father.name}",
-                ),
-              ),
-              title: Text(
-                'FATHER',
-                style: Theme.of(context).textTheme.subtitle1.copyWith(
-                      color: Colors.grey,
-                    ),
-              ),
-              subtitle: Text(
-                father.name,
-                style: Theme.of(context).textTheme.headline6.copyWith(
-                      color: blackDarkColor,
-                    ),
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  father != null
+                      ? ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: CachedNetworkImageProvider(
+                              "https://i.pravatar.cc/150?u=${father.name}",
+                            ),
+                          ),
+                          title: Text(
+                            'FATHER',
+                            style:
+                                Theme.of(context).textTheme.subtitle1.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                          ),
+                          subtitle: Text(
+                            father.name,
+                            style:
+                                Theme.of(context).textTheme.headline6.copyWith(
+                                      color: blackDarkColor,
+                                    ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                  mother != null
+                      ? ListTile(
+                          leading: CircleAvatar(
+                            backgroundImage: CachedNetworkImageProvider(
+                              "https://i.pravatar.cc/150?u=${mother.name}",
+                            ),
+                          ),
+                          title: Text(
+                            'MOTHER',
+                            style:
+                                Theme.of(context).textTheme.subtitle1.copyWith(
+                                      color: Colors.grey,
+                                    ),
+                          ),
+                          subtitle: Text(
+                            mother.name,
+                            style:
+                                Theme.of(context).textTheme.headline6.copyWith(
+                                      color: blackDarkColor,
+                                    ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                ],
               ),
             ),
-            couple.member2 != null
-                ? ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: CachedNetworkImageProvider(
-                        "https://i.pravatar.cc/150?u=${mother.name}",
-                      ),
-                    ),
-                    title: Text(
-                      'MOTHER',
-                      style: Theme.of(context).textTheme.subtitle1.copyWith(
-                            color: Colors.grey,
-                          ),
-                    ),
-                    subtitle: Text(
-                      mother.name,
-                      style: Theme.of(context).textTheme.headline6.copyWith(
-                            color: blackDarkColor,
-                          ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-            Text('loa')
+            _getAddButton(father, mother),
           ],
         );
       },
     );
   }
 
+  _getAddButton(SingleMemberModal father, SingleMemberModal mother) {
+    if (father != null && mother != null) return SizedBox.shrink();
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      width: double.infinity,
+      height: 80,
+      child: RaisedButton(
+        color: darkBlueColor,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              father == null ? 'ADD FATHER' : 'ADD MOTHER',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Icon(
+              Icons.add,
+              color: Colors.white,
+            )
+          ],
+        ),
+        onPressed: () {},
+      ),
+    );
+  }
+
   @override
   bool get wantKeepAlive => true;
+}
+
+class RelationDetails extends StatelessWidget {
+  final CoupleModal couple;
+  final SingleMemberModal member;
+
+  const RelationDetails({
+    @required this.couple,
+    @required this.member,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    SingleMemberModal spouse =
+        couple.member1 == member ? couple.member2 : couple.member1;
+
+    if (couple.member2 == null)
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            height: 80,
+            child: RaisedButton(
+              color: darkBlueColor,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'ADD SPOUSE',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  )
+                ],
+              ),
+              onPressed: () {},
+            ),
+          )
+        ],
+      );
+
+    return ListView(
+      children: [
+        ListTile(
+          leading: CircleAvatar(
+            backgroundImage: CachedNetworkImageProvider(
+              '"https://i.pravatar.cc/150?u=${spouse.name}",',
+            ),
+          ),
+          title: Text(
+            spouse.gender == 'm' ? 'HUSBAND' : 'WIFE',
+            style: Theme.of(context).textTheme.subtitle1.copyWith(
+                  color: Colors.grey,
+                ),
+          ),
+          subtitle: Text(
+            spouse.name,
+            style: Theme.of(context).textTheme.headline6.copyWith(
+                  color: blackDarkColor,
+                ),
+          ),
+        ),
+      ],
+    );
+  }
 }

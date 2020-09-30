@@ -245,7 +245,9 @@ class _MainContentState extends State<MainContent>
                   couple: widget.couple,
                   member: widget.member,
                 ),
-                Icon(Icons.directions_transit),
+                ChidrenDetails(
+                  couple: widget.couple,
+                ),
                 Icon(Icons.perm_media),
               ],
             ),
@@ -304,8 +306,13 @@ class _PersonalDetailsState extends State<PersonalDetails>
           widget.member.gender,
         );
 
+        print(snapshot.data.data());
         String birthday = DateFormat.yMMMd().format(
           memberDetails.bday.toDate(),
+        );
+
+        String anniversary = DateFormat.yMMMd().format(
+          memberDetails.anniversery.toDate(),
         );
 
         return ListView(
@@ -315,6 +322,12 @@ class _PersonalDetailsState extends State<PersonalDetails>
               birthday,
               context,
               FontAwesomeIcons.birthdayCake,
+            ),
+            _getFieldListTile(
+              'ANNIVERSARY',
+              anniversary,
+              context,
+              FontAwesomeIcons.heart,
             ),
             _getFieldListTile(
               'EMAIL',
@@ -657,9 +670,24 @@ class RelationDetails extends StatelessWidget {
 
     if (couple.member2 == null)
       return Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
         children: [
+          Column(
+            children: [
+              SizedBox(
+                height: 130,
+              ),
+              Text(
+                'Single',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                  fontSize: 25,
+                ),
+              ),
+            ],
+          ),
           Container(
             padding: const EdgeInsets.all(8),
             width: double.infinity,
@@ -696,7 +724,7 @@ class RelationDetails extends StatelessWidget {
         ListTile(
           leading: CircleAvatar(
             backgroundImage: CachedNetworkImageProvider(
-              '"https://i.pravatar.cc/150?u=${spouse.name}",',
+              "https://i.pravatar.cc/150?u=${spouse.name}",
             ),
           ),
           title: Text(
@@ -715,4 +743,183 @@ class RelationDetails extends StatelessWidget {
       ],
     );
   }
+}
+
+class ChidrenDetails extends StatefulWidget {
+  final CoupleModal couple;
+
+  const ChidrenDetails({
+    this.couple,
+  });
+
+  @override
+  _ChidrenDetailsState createState() => _ChidrenDetailsState();
+}
+
+class _ChidrenDetailsState extends State<ChidrenDetails>
+    with AutomaticKeepAliveClientMixin {
+  List<ListTile> childrenList;
+
+  Future future;
+
+  @override
+  void initState() {
+    future = getChildren();
+    super.initState();
+  }
+
+  getChildren() async {
+    List local = [];
+    for (var i = 0; i < widget.couple.children.length; i++) {
+      String childId = widget.couple.children[i];
+
+      CoupleModal childCouple =
+          await getCoupleFromFirestore(id: childId, x: null, y: null);
+
+      SingleMemberModal childMember = childCouple.member1.id == childId
+          ? childCouple.member1
+          : childCouple.member2;
+
+      local.add(
+        _getFieldListTile(childMember.name, childMember.name, context),
+      );
+    }
+
+    return local;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    if (widget.couple.children.length == 0) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Column(
+            children: [
+              SizedBox(
+                height: 130,
+              ),
+              Text(
+                'No children',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                  fontSize: 25,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            width: double.infinity,
+            height: 80,
+            child: RaisedButton(
+              color: darkBlueColor,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'ADD CHILD',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  )
+                ],
+              ),
+              onPressed: () {},
+            ),
+          )
+        ],
+      );
+    }
+
+    return FutureBuilder(
+      future: future,
+      builder: (BuildContext context, snap) {
+        print(snap);
+        if (!snap.hasData)
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              itemBuilder: (context, index) => snap.data[index],
+              itemCount: snap.data.length,
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              width: double.infinity,
+              height: 80,
+              child: RaisedButton(
+                color: darkBlueColor,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'ADD CHILD',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Icon(
+                      Icons.add,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+                onPressed: () {},
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _getFieldListTile(
+    String imageUrl,
+    String value,
+    BuildContext context,
+  ) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: CachedNetworkImageProvider(
+          "https://i.pravatar.cc/150?u=${imageUrl}",
+        ),
+      ),
+      title: Text(
+        'CHILD',
+        style: Theme.of(context).textTheme.subtitle1.copyWith(
+              color: Colors.grey,
+            ),
+      ),
+      subtitle: Text(
+        value,
+        style: Theme.of(context).textTheme.headline6.copyWith(
+              color: blackDarkColor,
+            ),
+      ),
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
 }

@@ -23,7 +23,7 @@ class MemberDetailsModal {
   ) {
     return MemberDetailsModal(
       address: snap['address'],
-      anniversery: snap['anniversery'],
+      anniversery: snap['anniversary'],
       bday: snap['bday'],
       contact: snap['contact'],
       email: snap['email'],

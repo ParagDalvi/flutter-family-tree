@@ -10,14 +10,28 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class MemberDetails extends StatelessWidget {
+class MemberDetails extends StatefulWidget {
   final SingleMemberModal member;
   final CoupleModal couple;
 
-  const MemberDetails({
+  MemberDetails({
     @required this.member,
     @required this.couple,
   });
+
+  @override
+  _MemberDetailsState createState() => _MemberDetailsState();
+}
+
+class _MemberDetailsState extends State<MemberDetails> {
+  bool showEditIcon = true;
+  bool editEnable = false;
+
+  funtionToToggleEditIcon(bool val) {
+    setState(() {
+      showEditIcon = val;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +51,17 @@ class MemberDetails extends StatelessWidget {
               ),
             ),
             child: MainContent(
-              member: member,
-              couple: couple,
+              member: widget.member,
+              couple: widget.couple,
+              editEnable: editEnable,
+              funtionToToggleEditIcon: funtionToToggleEditIcon,
             ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Hero(
-                tag: member.id,
+                tag: widget.member.id,
                 child: Container(
                   margin: EdgeInsets.only(
                     top: MediaQuery.of(context).size.width / 6,
@@ -69,8 +85,9 @@ class MemberDetails extends StatelessWidget {
                       ),
                     ],
                     image: DecorationImage(
+                      fit: BoxFit.cover,
                       image: CachedNetworkImageProvider(
-                        "https://i.pravatar.cc/150?u=${member.name}",
+                        widget.member.imageUrl,
                       ),
                     ),
                   ),
@@ -103,26 +120,32 @@ class MemberDetails extends StatelessWidget {
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 35, right: 25),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(15),
+          showEditIcon
+              ? Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 35, right: 25),
+                    child: GestureDetector(
+                      onTap: () => setState(() {
+                        editEnable = true;
+                      }),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(15),
+                          ),
+                          color: Color(0xff0ed0e2).withOpacity(0.3),
+                        ),
+                        padding: const EdgeInsets.all(15),
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
-                  color: Color(0xff0ed0e2).withOpacity(0.3),
-                ),
-                padding: const EdgeInsets.all(15),
-                child: Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                ),
-                // onPressed: () => Navigator.pop(context),
-              ),
-            ),
-          ),
+                )
+              : SizedBox.shrink(),
         ],
       ),
     );
@@ -132,10 +155,14 @@ class MemberDetails extends StatelessWidget {
 class MainContent extends StatefulWidget {
   final SingleMemberModal member;
   final CoupleModal couple;
+  final Function funtionToToggleEditIcon;
+  final bool editEnable;
 
   const MainContent({
     @required this.member,
     @required this.couple,
+    @required this.editEnable,
+    @required this.funtionToToggleEditIcon,
   });
 
   @override
@@ -153,6 +180,13 @@ class _MainContentState extends State<MainContent>
       length: 5,
       initialIndex: 1,
     );
+
+    _tabController.addListener(() {
+      if (_tabController.index == 1)
+        widget.funtionToToggleEditIcon(true);
+      else
+        widget.funtionToToggleEditIcon(false);
+    });
 
     super.initState();
   }
@@ -181,7 +215,7 @@ class _MainContentState extends State<MainContent>
           ),
           Center(
             child: Text(
-              'Profession/Bio/Des',
+              widget.member.bio,
               style: TextStyle(
                 fontWeight: FontWeight.w400,
                 color: Colors.grey,
@@ -240,6 +274,7 @@ class _MainContentState extends State<MainContent>
                 ),
                 PersonalDetails(
                   member: widget.member,
+                  editEnable: widget.editEnable,
                 ),
                 RelationDetails(
                   couple: widget.couple,
@@ -260,9 +295,11 @@ class _MainContentState extends State<MainContent>
 
 class PersonalDetails extends StatefulWidget {
   final SingleMemberModal member;
+  final bool editEnable;
 
   const PersonalDetails({
     @required this.member,
+    @required this.editEnable,
   });
 
   @override
@@ -272,6 +309,8 @@ class PersonalDetails extends StatefulWidget {
 class _PersonalDetailsState extends State<PersonalDetails>
     with AutomaticKeepAliveClientMixin<PersonalDetails> {
   Future<DocumentSnapshot> personalDataDoc;
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -291,7 +330,10 @@ class _PersonalDetailsState extends State<PersonalDetails>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); //need this line
+    super.build(context);
+
+    if (widget.editEnable) return _getEditPage();
+
     return FutureBuilder(
       future: personalDataDoc,
       builder:
@@ -306,13 +348,8 @@ class _PersonalDetailsState extends State<PersonalDetails>
           widget.member.gender,
         );
 
-        print(snapshot.data.data());
         String birthday = DateFormat.yMMMd().format(
           memberDetails.bday.toDate(),
-        );
-
-        String anniversary = DateFormat.yMMMd().format(
-          memberDetails.anniversery.toDate(),
         );
 
         return ListView(
@@ -323,12 +360,7 @@ class _PersonalDetailsState extends State<PersonalDetails>
               context,
               FontAwesomeIcons.birthdayCake,
             ),
-            _getFieldListTile(
-              'ANNIVERSARY',
-              anniversary,
-              context,
-              FontAwesomeIcons.heart,
-            ),
+            _getAnniversaryDate(memberDetails.anniversery),
             _getFieldListTile(
               'EMAIL',
               memberDetails.email,
@@ -348,9 +380,26 @@ class _PersonalDetailsState extends State<PersonalDetails>
               FontAwesomeIcons.whatsapp,
             ),
             _getPersonalLinks(memberDetails),
+            SizedBox(
+              height: 20,
+            ),
           ],
         );
       },
+    );
+  }
+
+  _getAnniversaryDate(anniversaryDate) {
+    if (anniversaryDate == null) return SizedBox.shrink();
+
+    String anniversary = DateFormat.yMMMd().format(
+      anniversaryDate.toDate(),
+    );
+    return _getFieldListTile(
+      'ANNIVERSARY',
+      anniversary,
+      context,
+      FontAwesomeIcons.heart,
     );
   }
 
@@ -444,12 +493,8 @@ class _PersonalDetailsState extends State<PersonalDetails>
     );
   }
 
-  Widget _getFieldListTile(
-    String title,
-    String value,
-    BuildContext context,
-    IconData icon,
-  ) {
+  _getFieldListTile(
+      String title, String value, BuildContext context, IconData icon) {
     return ListTile(
       title: Text(
         title,
@@ -466,6 +511,94 @@ class _PersonalDetailsState extends State<PersonalDetails>
       trailing: FaIcon(
         icon,
         color: darkBlueColor,
+      ),
+    );
+  }
+
+  _getEditPage() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Form(
+        key: _formKey,
+        child: ListView(
+          children: [
+            _getTextFormField('E-MAIL', FontAwesomeIcons.envelope),
+            _getTextFormField('CONTACT', FontAwesomeIcons.phone),
+            _getTextFormField('WHATSAPP', FontAwesomeIcons.whatsapp),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 25.0),
+              child: Center(
+                child: Text(
+                  'Personal Links',
+                  style: Theme.of(context).textTheme.headline4.copyWith(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w300,
+                      ),
+                ),
+              ),
+            ),
+            _getTextFormField(
+                'PERSONAL WEBSITE/PORTFOLIO', FontAwesomeIcons.rss),
+            _getTextFormField('INSTAGRAM', FontAwesomeIcons.instagram),
+            _getTextFormField('FACEBOOK', FontAwesomeIcons.facebook),
+            _getTextFormField('LINKEDIN', FontAwesomeIcons.linkedin),
+            _getTextFormField('TWITTER', FontAwesomeIcons.twitter),
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              width: double.infinity,
+              height: 80,
+              child: RaisedButton(
+                color: darkBlueColor,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'SAVE CHANGES',
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Icon(
+                      Icons.check,
+                      color: Colors.white,
+                    )
+                  ],
+                ),
+                onPressed: () {},
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  _getTextFormField(String label, IconData icon) {
+    return TextFormField(
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please enter some text';
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        suffixIcon: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FaIcon(
+              icon,
+              // size: 20,
+            ),
+          ],
+        ),
+        labelText: label,
       ),
     );
   }
@@ -507,9 +640,24 @@ class _ParentsDetailsState extends State<ParentsDetails>
 
     if (widget.parentsId.length == 0)
       return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Column(
+            children: [
+              SizedBox(
+                height: 130,
+              ),
+              Text(
+                'No parent added',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                  fontSize: 25,
+                ),
+              ),
+            ],
+          ),
           Container(
             padding: const EdgeInsets.all(8),
             width: double.infinity,
@@ -521,7 +669,7 @@ class _ParentsDetailsState extends State<ParentsDetails>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'ADD',
+                    'ADD PARENTS',
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -537,7 +685,7 @@ class _ParentsDetailsState extends State<ParentsDetails>
               ),
               onPressed: () {},
             ),
-          ),
+          )
         ],
       );
 

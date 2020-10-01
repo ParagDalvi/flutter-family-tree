@@ -36,7 +36,7 @@ class _NavtiveFamilyTreeState extends State<NavtiveFamilyTree> {
   void init() async {
     allCouples.add(
       await getCoupleFromFirestore(
-        id: '2',
+        id: '1',
         x: 0,
         y: 0,
       ),
@@ -203,7 +203,6 @@ class IndividualCoupleUI extends StatelessWidget {
       children: [
         couple.member2 == null
             ? Row(
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     width: (MEMBER_CIRCLE_RADIUS + 50) * zoom,
@@ -246,7 +245,7 @@ class IndividualCoupleUI extends StatelessWidget {
           height: 8 * zoom,
         ),
         _getChildrenButton(couple, zoom),
-        Text('${couple.x}, ${couple.y}'),
+        // Text('${couple.x}, ${couple.y}'),
       ],
     );
   }
@@ -300,8 +299,9 @@ class IndividualCoupleUI extends StatelessWidget {
             // shape: BoxShape.circle,
             color: Colors.orange,
             image: DecorationImage(
+              fit: BoxFit.cover,
               image: CachedNetworkImageProvider(
-                "https://i.pravatar.cc/150?u=${member.name}",
+                "https://i.pravatar.cc/150?u=${member.imageUrl}",
               ),
             ),
           ),
@@ -358,6 +358,7 @@ class IndividualCoupleUI extends StatelessWidget {
   }
 
   void _performMemberClick(SingleMemberModal member, BuildContext ctx) {
+    print('clicked ${member.name}');
     Navigator.push(
       ctx,
       MaterialPageRoute(
@@ -367,14 +368,5 @@ class IndividualCoupleUI extends StatelessWidget {
         ),
       ),
     );
-
-    // showBottomSheet(
-    //   context: ctx,
-    //   builder: (BuildContext context) {
-    //     return Container(
-    //       child: Text('la'),
-    //     );
-    //   },
-    // );
   }
 }

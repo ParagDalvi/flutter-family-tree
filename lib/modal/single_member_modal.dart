@@ -6,6 +6,8 @@ class SingleMemberModal {
   final String gender;
   final String spouse;
   final List parents;
+  final String bio;
+  final String imageUrl;
   bool areParentsLoaded;
 
   SingleMemberModal({
@@ -13,6 +15,8 @@ class SingleMemberModal {
     @required this.name,
     @required this.gender,
     @required this.spouse,
+    @required this.bio,
+    @required this.imageUrl,
     @required this.parents,
     @required this.areParentsLoaded,
   });
@@ -23,6 +27,8 @@ class SingleMemberModal {
       name: rawData['name'],
       gender: rawData['gender'],
       spouse: rawData['spouse'],
+      imageUrl: rawData['imageUrl'],
+      bio: rawData['bio'],
       parents: rawData['parents'],
       areParentsLoaded: false,
     );
